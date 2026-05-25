@@ -1,0 +1,29 @@
+{
+  "servers": [
+    {
+      "name": "dms",
+      "url": "http://localhost:8081/mcp",
+      "protocol": "mcp",
+      "api_key_env": "DMS_API_KEY",
+      "timeout": 10,
+      "comment": "Dealer Management System MCP server. Exposes: get_service_slots, book_service_appointment, get_inventory, book_test_drive"
+    }
+  ],
+  "_comment": [
+    "Each server entry:",
+    "  name        - identifier used in registry tool_map",
+    "  url         - base URL of the MCP server",
+    "  protocol    - 'mcp' (JSON-RPC 2.0) or 'rest' (POST /{tool_name})",
+    "  api_key_env - env var containing the API key (injected as X-API-Key header)",
+    "  timeout     - request timeout in seconds",
+    "",
+    "DMS tool reference:",
+    "  get_service_slots(date, service_type)                                              -> [{time, available}]",
+    "  book_service_appointment(name, phone, date, time, service_type, vehicle)           -> {confirmation_id, ...}",
+    "  get_inventory(make, model, year, trim)                                             -> [{stock_num, color, price, mileage}]",
+    "  book_test_drive(name, phone, date, time, vehicle_interest)                        -> {confirmation_id, ...}",
+    "",
+    "For local dev, run a mock MCP server:",
+    "  uvicorn mock_dms_server:app --port 8081"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "_comment": "A/B testing config. Set active:true to enable a test.",
+  "tests": [
+    {
+      "test_id": "hello_greeting_style",
+      "description": "Test warmer Hindi greeting vs standard",
+      "active": false,
+      "traffic_split": 50,
+      "variants": {
+        "control": {
+          "prompt_file": "prompts/hello.md"
+        },
+        "treatment": {
+          "prompt_file": "prompts/hello.md"
+        }
+      }
+    }
+  ]
+}

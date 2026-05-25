@@ -1,0 +1,31 @@
+{
+  "name": "Default Enrollment Squad",
+  "description": "4-agent enrollment flow: greet -> screen -> schedule -> close",
+  "leader": "hello",
+  "agents": [
+    {
+      "name": "hello",
+      "class": "HelloAgent",
+      "description": "Greets caller, collects name, routes to screener",
+      "can_handoff_to": ["screener", "closer"]
+    },
+    {
+      "name": "screener",
+      "class": "ScreenerAgent",
+      "description": "Checks eligibility via 3 questions",
+      "can_handoff_to": ["scheduler", "closer"]
+    },
+    {
+      "name": "scheduler",
+      "class": "SchedulerAgent",
+      "description": "Books the appointment using availability and booking tools",
+      "can_handoff_to": ["closer"]
+    },
+    {
+      "name": "closer",
+      "class": "CloserAgent",
+      "description": "Wraps up the call, confirms booking or handles ineligible",
+      "can_handoff_to": []
+    }
+  ]
+}

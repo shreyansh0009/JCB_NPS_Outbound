@@ -1,0 +1,3639 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Outbound Campaign Studio</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Sora:wght@500;600;700&display=swap");
+
+    html {
+      font-size: 14px;
+    }
+
+    :root {
+      --bg: #f5f7fc;
+      --bg-grad: radial-gradient(1200px 320px at 30% -160px, #e0e9ff 0%, transparent 70%),
+        radial-gradient(800px 280px at 90% -80px, #ffe6f1 0%, transparent 65%);
+      --panel: #ffffff;
+      --panel-soft: #fafbff;
+      --text: #0b1226;
+      --muted: #64748b;
+      --muted-2: #94a3b8;
+      --border: #e6ebf5;
+      --border-strong: #d6deeb;
+      --primary: #6366f1;
+      --primary-2: #4f46e5;
+      --primary-3: #818cf8;
+      --accent: #06b6d4;
+      --success: #16a34a;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --teal: #0d9488;
+      --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
+      --shadow: 0 6px 20px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.04);
+      --shadow-lg: 0 24px 48px rgba(15, 23, 42, 0.12);
+      --sidebar: linear-gradient(180deg, #0a1330 0%, #111e44 60%, #0f2856 100%);
+      --sidebar-text: #d7e1ff;
+      --sidebar-muted: #94a3c8;
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg-grad), var(--bg);
+      color: var(--text);
+      font-family: "Manrope", "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .view {
+      display: none;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 248px 1fr;
+    }
+
+    /* ============ Sidebar ============ */
+    .sidebar {
+      background: var(--sidebar);
+      color: var(--sidebar-text);
+      padding: 1.1rem 0.9rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      border-right: 1px solid rgba(148, 163, 184, 0.18);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 0.2rem 0.22rem 0.6rem;
+    }
+
+    .logo-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, #6366f1, #06b6d4);
+      box-shadow: 0 10px 24px rgba(99, 102, 241, 0.45);
+      letter-spacing: 0.02em;
+    }
+
+    .brand-name {
+      font-family: "Sora", "Avenir Next", sans-serif;
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .menu {
+      display: grid;
+      gap: 0.3rem;
+    }
+
+    .menu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      border: 1px solid transparent;
+      border-radius: 11px;
+      color: var(--sidebar-text);
+      text-decoration: none;
+      padding: 0.62rem 0.7rem;
+      font-size: 0.94rem;
+      font-weight: 600;
+      transition: background 0.18s ease, transform 0.16s ease, color 0.18s ease;
+    }
+
+    .menu-item:hover {
+      background: rgba(148, 163, 184, 0.14);
+      color: #fff;
+    }
+
+    .menu-item.active {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.95) 0%, rgba(59, 130, 246, 0.92) 100%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14), 0 8px 18px rgba(79, 70, 229, 0.35);
+    }
+
+    .menu-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: #dbeafe;
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: rgba(148, 163, 184, 0.18);
+      letter-spacing: 0.02em;
+    }
+
+    .menu-item.active .menu-icon {
+      background: rgba(255, 255, 255, 0.22);
+      color: #fff;
+    }
+
+    .side-card {
+      margin-top: auto;
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 14px;
+      padding: 0.85rem;
+      background: rgba(8, 20, 45, 0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    .side-card h4 {
+      margin: 0;
+      font-size: 0.96rem;
+      font-family: "Sora", sans-serif;
+    }
+
+    .side-card p {
+      margin: 0.32rem 0 0;
+      color: var(--sidebar-muted);
+      font-size: 0.83rem;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      display: inline-block;
+      background: #22c55e;
+      margin-right: 0.36rem;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+      }
+
+      50% {
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0.05);
+      }
+    }
+
+    .profile {
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      border-radius: 14px;
+      padding: 0.66rem;
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: rgba(8, 20, 45, 0.4);
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, #06b6d4, #2563eb);
+    }
+
+    .profile .name {
+      margin: 0;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .profile .role {
+      margin: 0.06rem 0 0;
+      color: var(--sidebar-muted);
+      font-size: 0.78rem;
+    }
+
+    /* ============ Main + topbar ============ */
+    .main {
+      padding: 1rem 1.1rem 2rem;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      flex-wrap: wrap;
+    }
+
+    .hamburger {
+      display: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      border-radius: 10px;
+      width: 38px;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 16px;
+      height: 2px;
+      background: #334155;
+      border-radius: 2px;
+      box-shadow: 0 5px 0 #334155, 0 -5px 0 #334155;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 360px;
+    }
+
+    .search-wrap::before {
+      content: "";
+      position: absolute;
+      left: 0.78rem;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      transform: translateY(-50%);
+      background: no-repeat center/contain url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3aec1' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><path d='m20 20-3.5-3.5'/></svg>");
+      pointer-events: none;
+    }
+
+    .topbar input[type="search"] {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.86rem;
+      padding: 0.6rem 0.8rem 0.6rem 2.1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .topbar input[type="search"]:focus {
+      outline: none;
+      border-color: var(--primary-3);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.14);
+    }
+
+    .topbar button {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: #fff;
+      color: #1e293b;
+      font-family: inherit;
+      font-size: 0.84rem;
+      font-weight: 600;
+      padding: 0.55rem 0.85rem;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s, transform 0.12s;
+    }
+
+    .topbar button:hover {
+      background: #f8fafc;
+      border-color: var(--border-strong);
+    }
+
+    .btn-primary {
+      border: 0 !important;
+      color: #fff !important;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2)) !important;
+      box-shadow: 0 10px 24px rgba(79, 70, 229, 0.32);
+      font-weight: 700 !important;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+    }
+
+    /* ============ Hero ============ */
+    .hero {
+      margin-bottom: 0.9rem;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 3.1vw, 2.15rem);
+      font-family: "Sora", "Avenir Next", sans-serif;
+      letter-spacing: -0.005em;
+      background: linear-gradient(120deg, #0b1226 0%, #4338ca 60%, #06b6d4 110%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      margin: 0.4rem 0 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+      max-width: 720px;
+    }
+
+    /* ============ Stats ============ */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(160px, 1fr));
+      gap: 0.7rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.85rem 0.95rem;
+      box-shadow: var(--shadow);
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 0.7rem;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.2s ease;
+    }
+
+    .stat:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat::after {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      opacity: 0.06;
+      background: currentColor;
+      pointer-events: none;
+    }
+
+    .stat-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .stat .label {
+      color: var(--muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .stat .value {
+      margin-top: 0.18rem;
+      font-size: 1.4rem;
+      font-weight: 800;
+      line-height: 1;
+      font-family: "Sora", sans-serif;
+    }
+
+    .icon-campaigns {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #3b82f6;
+    }
+
+    .icon-originated {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #22c55e;
+    }
+
+    .icon-completed {
+      background: linear-gradient(135deg, #14b8a6, #0f766e);
+      color: #14b8a6;
+    }
+
+    .icon-failed {
+      background: linear-gradient(135deg, #fb7185, #e11d48);
+      color: #ef4444;
+    }
+
+    .icon-total {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      color: #8b5cf6;
+    }
+
+    .stat .stat-icon {
+      color: #fff;
+    }
+
+    /* ============ Layout grids ============ */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1.95fr;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr;
+      gap: 0.85rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      box-shadow: var(--shadow);
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.55rem;
+      margin-bottom: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin: 0;
+      font-size: 1.08rem;
+      font-family: "Sora", sans-serif;
+      letter-spacing: -0.005em;
+    }
+
+    .panel .sub {
+      margin: 0.28rem 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    /* ============ Form ============ */
+    .field {
+      display: grid;
+      gap: 0.32rem;
+      margin-top: 0.65rem;
+    }
+
+    .field label {
+      font-size: 0.8rem;
+      color: #475569;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1px solid var(--border-strong);
+      border-radius: 11px;
+      padding: 0.6rem 0.7rem;
+      font-size: 0.88rem;
+      font-family: inherit;
+      background: #fff;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .field input:focus {
+      outline: none;
+      border-color: var(--primary-3);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.14);
+    }
+
+    .field input[type="file"] {
+      padding: 0.42rem 0.5rem;
+      cursor: pointer;
+    }
+
+    .field select {
+      width: 100%;
+      border: 1px solid var(--border-strong);
+      border-radius: 11px;
+      padding: 0.6rem 0.7rem;
+      font-size: 0.88rem;
+      font-family: inherit;
+      background: #fff;
+      color: var(--text);
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat: no-repeat;
+      background-position: right 0.7rem center;
+      background-size: 14px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .field select:focus {
+      outline: none;
+      border-color: var(--primary-3);
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.14);
+    }
+
+    .start-btn {
+      margin-top: 0.85rem;
+      width: 100%;
+      border: 0;
+      border-radius: 11px;
+      padding: 0.72rem 0.9rem;
+      color: #fff;
+      font-size: 0.92rem;
+      font-family: "Sora", sans-serif;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 12px 24px rgba(79, 70, 229, 0.28);
+      transition: transform 0.16s ease, box-shadow 0.2s ease;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 16px 30px rgba(79, 70, 229, 0.35);
+    }
+
+    .start-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ============ Toast ============ */
+    .toast-stack {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      display: grid;
+      gap: 0.5rem;
+      z-index: 200;
+      max-width: calc(100vw - 2rem);
+    }
+
+    .toast {
+      min-width: 280px;
+      max-width: 380px;
+      border-radius: 12px;
+      padding: 0.7rem 0.85rem 0.72rem 2.4rem;
+      font-size: 0.86rem;
+      background: #fff;
+      color: #0f172a;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      position: relative;
+      animation: toast-in 0.22s ease-out;
+    }
+
+    .toast::before {
+      content: "";
+      position: absolute;
+      left: 0.85rem;
+      top: 0.95rem;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .toast.info::before {
+      background: var(--primary);
+    }
+
+    .toast.ok::before {
+      background: var(--success);
+    }
+
+    .toast.err::before {
+      background: var(--danger);
+    }
+
+    .toast.leaving {
+      animation: toast-out 0.2s ease-in forwards;
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes toast-out {
+      to {
+        opacity: 0;
+        transform: translateX(20px);
+      }
+    }
+
+    /* ============ Latest campaign card ============ */
+    .latest-campaign {
+      margin-top: 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.75rem 0.8rem;
+      background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+      display: none;
+    }
+
+    .latest-campaign.show {
+      display: block;
+    }
+
+    .latest-campaign-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+    }
+
+    .latest-campaign .k {
+      color: #64748b;
+      font-size: 0.74rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .latest-campaign .v {
+      margin-top: 0.16rem;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #0f172a;
+      font-family: "Sora", sans-serif;
+    }
+
+    .latest-campaign .subv {
+      margin-top: 0.18rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .latest-campaign .numbers {
+      margin-top: 0.65rem;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      max-height: 145px;
+      overflow: auto;
+    }
+
+    .latest-campaign .num-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 0.46rem 0.62rem;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.84rem;
+    }
+
+    .latest-campaign .num-row:last-child {
+      border-bottom: 0;
+    }
+
+    .latest-campaign .num-row .mobile {
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.01em;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .latest-campaign .num-row .who {
+      color: var(--muted);
+      font-size: 0.8rem;
+      max-width: 55%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    /* ============ Campaign cards ============ */
+    .campaign-list {
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .empty {
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: 1.3rem 1rem;
+      color: var(--muted);
+      text-align: center;
+      background: #fcfdff;
+      font-size: 0.88rem;
+    }
+
+    .campaign-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--panel);
+      overflow: hidden;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .campaign-card:hover {
+      box-shadow: var(--shadow);
+      border-color: var(--border-strong);
+    }
+
+    .campaign-head {
+      padding: 0.7rem 0.85rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.6rem;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+      background: linear-gradient(180deg, #fbfdff, #f7faff);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .campaign-head:hover {
+      background: linear-gradient(180deg, #f5f8ff, #eff4ff);
+    }
+
+    .campaign-card.collapsed .campaign-head {
+      border-bottom: 0;
+    }
+
+    .campaign-name {
+      margin: 0;
+      font-size: 1rem;
+      font-family: "Sora", sans-serif;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .campaign-name .chevron {
+      width: 16px;
+      height: 16px;
+      transition: transform 0.2s ease;
+      color: var(--muted-2);
+    }
+
+    .campaign-card.collapsed .chevron {
+      transform: rotate(-90deg);
+    }
+
+    .campaign-meta {
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin-top: 0.16rem;
+    }
+
+    .campaign-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .status-pill {
+      border-radius: 999px;
+      border: 1px solid transparent;
+      padding: 0.26rem 0.7rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: capitalize;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.32rem;
+      letter-spacing: 0.02em;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .status-pill.running {
+      color: #c2410c;
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+
+    .status-pill.completed {
+      color: #047857;
+      background: #ecfdf5;
+      border-color: #86efac;
+    }
+
+    .status-pill.stopped {
+      color: #475569;
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .status-pill.queued {
+      color: #475569;
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+    }
+
+    .campaign-body {
+      padding: 0.75rem 0.85rem 0.85rem;
+      transition: max-height 0.25s ease, opacity 0.2s ease;
+    }
+
+    .campaign-card.collapsed .campaign-body {
+      display: none;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 0.24rem 0.6rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+    }
+
+    .chip.type-chip {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #15803d;
+      font-size: 0.72rem;
+    }
+
+    .chip.total {
+      background: #eef2ff;
+      border-color: #c7d2fe;
+      color: #4338ca;
+    }
+
+    .chip.queued {
+      background: #f1f5f9;
+      border-color: #e2e8f0;
+      color: #475569;
+    }
+
+    .chip.dialing {
+      background: #fff7ed;
+      border-color: #fed7aa;
+      color: #c2410c;
+    }
+
+    .chip.originated {
+      background: #ecfeff;
+      border-color: #a5f3fc;
+      color: #0e7490;
+    }
+
+    .chip.completed {
+      background: #ecfdf5;
+      border-color: #bbf7d0;
+      color: #15803d;
+    }
+
+    .chip.failed {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #b91c1c;
+    }
+
+    .progress {
+      height: 6px;
+      border-radius: 999px;
+      background: #eef2ff;
+      overflow: hidden;
+      margin-bottom: 0.6rem;
+      position: relative;
+    }
+
+    .progress>span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      transition: width 0.35s ease;
+    }
+
+    .progress-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: var(--muted);
+      margin-top: -0.35rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 700px;
+      font-size: 0.83rem;
+    }
+
+    th,
+    td {
+      text-align: left;
+      padding: 0.52rem 0.65rem;
+      border-bottom: 1px solid #eef2f7;
+      white-space: nowrap;
+    }
+
+    tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:hover td {
+      background: #fafbff;
+    }
+
+    th {
+      background: #f8fafc;
+      color: #64748b;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+      position: sticky;
+      top: 0;
+    }
+
+    .cell-status {
+      font-weight: 700;
+      text-transform: capitalize;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .cell-status::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: currentColor;
+    }
+
+    .cell-status.queued {
+      color: #64748b;
+    }
+
+    .cell-status.dialing {
+      color: #c2410c;
+    }
+
+    .cell-status.originated {
+      color: #0e7490;
+    }
+
+    .cell-status.completed {
+      color: #15803d;
+    }
+
+    .cell-status.failed {
+      color: #b91c1c;
+    }
+
+    /* ============ Analytics mini-cards ============ */
+    .metrics-mini {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .mini-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.6rem 0.7rem;
+      background: #fcfdff;
+      transition: border-color 0.2s, transform 0.15s;
+    }
+
+    .mini-card:hover {
+      border-color: var(--border-strong);
+      transform: translateY(-1px);
+    }
+
+    .mini-card .k {
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .mini-card .v {
+      margin-top: 0.22rem;
+      font-size: 1.18rem;
+      font-weight: 800;
+      line-height: 1.1;
+      font-family: "Sora", sans-serif;
+    }
+
+    /* ============ Trend chart ============ */
+    .trend-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fafcff 0%, #ffffff 100%);
+      padding: 0.65rem;
+    }
+
+    .trend-svg {
+      width: 100%;
+      height: 160px;
+      display: block;
+    }
+
+    .trend-labels {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.25rem;
+      color: var(--muted);
+      font-size: 0.7rem;
+      margin-top: 0.3rem;
+    }
+
+    /* ============ Donut (SVG) ============ */
+    .donut-wrap {
+      display: grid;
+      grid-template-columns: 175px 1fr;
+      gap: 0.85rem;
+      align-items: center;
+    }
+
+    .donut-svg-wrap {
+      position: relative;
+      width: 175px;
+      height: 175px;
+      margin: 0 auto;
+    }
+
+    .donut-svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .donut-svg circle.bg {
+      fill: none;
+      stroke: #eef2f7;
+    }
+
+    .donut-svg circle.seg {
+      fill: none;
+      stroke-linecap: butt;
+      transition: stroke-dasharray 0.4s ease;
+    }
+
+    .donut-center {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .donut-center strong {
+      display: block;
+      color: var(--text);
+      font-size: 1.45rem;
+      font-family: "Sora", sans-serif;
+      letter-spacing: -0.01em;
+      margin-bottom: 0.1rem;
+      text-transform: none;
+    }
+
+    .legend {
+      display: grid;
+      gap: 0.5rem;
+      font-size: 0.84rem;
+      color: #334155;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .legend-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      display: inline-block;
+    }
+
+    /* ============ Agents table ============ */
+    .agents-table {
+      width: 100%;
+      min-width: 0;
+    }
+
+    .agents-table td,
+    .agents-table th {
+      white-space: nowrap;
+    }
+
+    .agents-table td:first-child {
+      color: var(--muted);
+      width: 28px;
+      font-weight: 700;
+    }
+
+    .agents-table td:last-child {
+      color: #0284c7;
+      font-weight: 700;
+    }
+
+    /* ============ Activity ============ */
+    .activity-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .activity-item {
+      display: grid;
+      grid-template-columns: 9px 1.25fr 0.95fr 0.85fr;
+      gap: 0.6rem;
+      align-items: center;
+      border-bottom: 1px solid #eef2f7;
+      padding: 0.45rem 0.1rem;
+      font-size: 0.83rem;
+    }
+
+    .activity-item:last-child {
+      border-bottom: 0;
+    }
+
+    .activity-time {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ============ Quick actions ============ */
+    .quick-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0.6rem;
+    }
+
+    .quick-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: linear-gradient(180deg, #fbfdff, #ffffff);
+      padding: 0.7rem;
+      cursor: pointer;
+      transition: border-color 0.18s, transform 0.15s, box-shadow 0.2s;
+    }
+
+    .quick-card:hover {
+      border-color: var(--primary-3);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(99, 102, 241, 0.12);
+    }
+
+    .quick-card h4 {
+      margin: 0;
+      font-size: 0.92rem;
+      font-family: "Sora", sans-serif;
+    }
+
+    .quick-card p {
+      margin: 0.26rem 0 0;
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    .tiny-btn {
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #fff;
+      color: #334155;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.46rem 0.7rem;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s;
+    }
+
+    .tiny-btn:hover {
+      background: #f8fafc;
+      border-color: var(--border-strong);
+    }
+
+    .details-btn {
+      color: var(--primary-2);
+      border-color: #e0e7ff;
+      background: #eef2ff;
+    }
+
+    .details-btn:hover {
+      background: #e0e7ff;
+      border-color: var(--primary-3);
+    }
+
+    /* ============ Pagination buttons ============ */
+    .lead-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      padding: 0.65rem 0.1rem 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+
+    .lead-meta-row strong {
+      color: var(--text);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .load-more-btn {
+      border: 1px dashed #c7d2fe;
+      background: #f5f7ff;
+      color: var(--primary-2);
+      font-weight: 700;
+      padding: 0.5rem 0.85rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.84rem;
+      transition: background 0.18s, border-color 0.18s, transform 0.12s;
+    }
+
+    .load-more-btn:hover {
+      background: #eef2ff;
+      border-color: var(--primary-3);
+      transform: translateY(-1px);
+    }
+
+    .load-more-btn.ghost {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    .load-more-btn.ghost:hover {
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    .see-more-btn {
+      width: 100%;
+      border: 1px dashed #c7d2fe;
+      background: linear-gradient(180deg, #f5f7ff, #fbfcff);
+      color: var(--primary-2);
+      font-weight: 700;
+      padding: 0.85rem 0.9rem;
+      border-radius: 12px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.92rem;
+      transition: background 0.18s, border-color 0.18s, transform 0.12s;
+      display: grid;
+      gap: 0.18rem;
+    }
+
+    .see-more-btn:hover {
+      background: linear-gradient(180deg, #eef2ff, #f5f7ff);
+      border-color: var(--primary-3);
+      transform: translateY(-1px);
+    }
+
+    .see-more-btn .see-more-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .see-more-btn.ghost {
+      background: #fff;
+      border-color: var(--border);
+      color: var(--muted);
+    }
+
+    .see-more-btn.ghost:hover {
+      background: #f8fafc;
+      color: #334155;
+    }
+
+    /* ============ Campaign expansion stat tiles ============ */
+    .stat-tiles {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .stat-tile {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 0.55rem 0.6rem;
+      background: #ffffff;
+      text-align: left;
+      transition: transform 0.16s ease, box-shadow 0.18s ease;
+    }
+
+    .stat-tile:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-tile-k {
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stat-tile-v {
+      margin-top: 0.2rem;
+      font-size: 1.45rem;
+      line-height: 1;
+      font-weight: 800;
+      font-family: "Sora", sans-serif;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-tile.total {
+      background: linear-gradient(180deg, #eef2ff, #f5f7ff);
+      border-color: #c7d2fe;
+    }
+
+    .stat-tile.total .stat-tile-v {
+      color: #4338ca;
+    }
+
+    .stat-tile.queued .stat-tile-v {
+      color: #475569;
+    }
+
+    .stat-tile.dialing {
+      background: linear-gradient(180deg, #fff7ed, #fffaf3);
+      border-color: #fed7aa;
+    }
+
+    .stat-tile.dialing .stat-tile-v {
+      color: #c2410c;
+    }
+
+    .stat-tile.originated {
+      background: linear-gradient(180deg, #ecfeff, #f4fdff);
+      border-color: #a5f3fc;
+    }
+
+    .stat-tile.originated .stat-tile-v {
+      color: #0e7490;
+    }
+
+    .stat-tile.completed {
+      background: linear-gradient(180deg, #ecfdf5, #f5fdf9);
+      border-color: #bbf7d0;
+    }
+
+    .stat-tile.completed .stat-tile-v {
+      color: #15803d;
+    }
+
+    .stat-tile.failed {
+      background: linear-gradient(180deg, #fef2f2, #fef7f7);
+      border-color: #fecaca;
+    }
+
+    .stat-tile.failed .stat-tile-v {
+      color: #b91c1c;
+    }
+
+    .view-details-btn {
+      width: 100%;
+      margin-top: 0.65rem;
+      border: 0;
+      border-radius: 11px;
+      padding: 0.72rem 0.95rem;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 10px 22px rgba(79, 70, 229, 0.28);
+      font-weight: 700;
+      font-family: "Sora", sans-serif;
+      font-size: 0.92rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: transform 0.16s ease, box-shadow 0.2s ease;
+    }
+
+    .view-details-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 14px 28px rgba(79, 70, 229, 0.36);
+    }
+
+    /* ============ Detail views (campaign / call) ============ */
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      margin-bottom: 0.85rem;
+      flex-wrap: wrap;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: #334155;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.8rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.18s, border-color 0.18s;
+    }
+
+    .back-btn:hover {
+      background: #f8fafc;
+      border-color: var(--border-strong);
+    }
+
+    .detail-title {
+      font-family: "Sora", sans-serif;
+      font-size: clamp(1.3rem, 2.6vw, 1.75rem);
+      margin: 0;
+      letter-spacing: -0.005em;
+    }
+
+    .detail-subtitle {
+      color: var(--muted);
+      font-size: 0.86rem;
+      margin: 0.2rem 0 0;
+    }
+
+    .detail-grid-stats {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.65rem;
+      margin-bottom: 0.9rem;
+    }
+
+    .detail-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.7rem;
+    }
+
+    .info-row {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 0.6rem 0.75rem;
+      background: #fcfdff;
+    }
+
+    .info-row .k {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .info-row .v {
+      margin-top: 0.2rem;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+      word-break: break-word;
+    }
+
+    .info-row .v.muted {
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .info-row .v a {
+      color: var(--primary-2);
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    .info-row .v a:hover {
+      text-decoration: underline;
+    }
+
+    .contact-row {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .contact-row:hover td {
+      background: #eef2ff !important;
+    }
+
+    .contact-row td.action-cell {
+      color: var(--primary-2);
+      font-weight: 700;
+    }
+
+    /* Transcript chat */
+    .transcript-box {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: #fafbff;
+      padding: 0.85rem;
+      max-height: 520px;
+      overflow-y: auto;
+      display: grid;
+      gap: 0.5rem;
+    }
+
+    .bubble {
+      max-width: 78%;
+      padding: 0.6rem 0.85rem;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+      word-break: break-word;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .bubble.assistant {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+      justify-self: start;
+    }
+
+    .bubble.user {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: #fff;
+      border-bottom-right-radius: 4px;
+      align-self: flex-end;
+      justify-self: end;
+    }
+
+    .bubble-role {
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      opacity: 0.7;
+      margin-bottom: 0.18rem;
+    }
+
+    .bubble.user .bubble-role {
+      color: #e0e7ff;
+    }
+
+    .bubble.assistant .bubble-role {
+      color: var(--muted);
+    }
+
+    .btn-translate {
+      font-size: 0.75rem;
+      padding: 0.22rem 0.65rem;
+      border-radius: 20px;
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      background: rgba(99, 102, 241, 0.08);
+      color: var(--primary-2);
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .btn-translate:hover {
+      background: rgba(99, 102, 241, 0.16);
+    }
+
+    .btn-translate:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .audio-wrap {
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      padding: 0.7rem;
+      background: #fcfdff;
+    }
+
+    .audio-wrap audio {
+      width: 100%;
+      margin-top: 0.45rem;
+    }
+
+    /* ============ Call detail polish ============ */
+    .recording-panel {
+      background: linear-gradient(135deg, #f5f3ff 0%, #ecfeff 100%);
+      border-color: #c4b5fd;
+    }
+
+    .recording-panel audio {
+      width: 100%;
+      border-radius: 10px;
+    }
+
+    .recording-pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--danger);
+      box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.18);
+      animation: rec-pulse 1.6s ease-in-out infinite;
+      display: inline-block;
+    }
+
+    @keyframes rec-pulse {
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.18);
+      }
+
+      50% {
+        box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.04);
+      }
+    }
+
+    /* Color-tinted info rows on the call detail */
+    .info-row.tint-indigo {
+      background: linear-gradient(135deg, #eef2ff, #f5f3ff);
+      border-color: #c7d2fe;
+    }
+
+    .info-row.tint-cyan {
+      background: linear-gradient(135deg, #ecfeff, #f0fdfa);
+      border-color: #a5f3fc;
+    }
+
+    .info-row.tint-amber {
+      background: linear-gradient(135deg, #fffbeb, #fff7ed);
+      border-color: #fde68a;
+    }
+
+    .info-row.tint-emerald {
+      background: linear-gradient(135deg, #ecfdf5, #f0fdf4);
+      border-color: #bbf7d0;
+    }
+
+    .info-row.tint-rose {
+      background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+      border-color: #fecdd3;
+    }
+
+    .info-row {
+      transition: transform 0.15s ease, box-shadow 0.18s ease;
+    }
+
+    .info-row:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(15, 23, 42, 0.07);
+    }
+
+    .info-row .k {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.32rem;
+    }
+
+    .info-row .k svg {
+      width: 12px;
+      height: 12px;
+      opacity: 0.7;
+    }
+
+    /* Hero card for the call detail customer */
+    .call-hero {
+      border-radius: 14px;
+      padding: 1.05rem 1.1rem;
+      margin-bottom: 0.85rem;
+      background: linear-gradient(120deg, #4338ca 0%, #6366f1 50%, #06b6d4 100%);
+      color: #fff;
+      box-shadow: 0 14px 30px rgba(79, 70, 229, 0.28);
+      display: grid;
+      grid-template-columns: 56px 1fr auto;
+      gap: 0.9rem;
+      align-items: center;
+    }
+
+    .call-hero .avatar-lg {
+      width: 56px;
+      height: 56px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: rgba(255, 255, 255, 0.18);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      font-family: "Sora", sans-serif;
+    }
+
+    .call-hero .who {
+      min-width: 0;
+    }
+
+    .call-hero .name {
+      margin: 0;
+      font-family: "Sora", sans-serif;
+      font-size: clamp(1.1rem, 2.2vw, 1.4rem);
+      letter-spacing: -0.005em;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .call-hero .meta {
+      margin: 0.2rem 0 0;
+      font-size: 0.86rem;
+      opacity: 0.92;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .call-hero .status-pill {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #fff;
+    }
+
+    .panel.section-transcript .panel-head {
+      background: linear-gradient(90deg, #eef2ff 0%, transparent 60%);
+      margin: -1rem -1rem 0.7rem;
+      padding: 0.65rem 1rem;
+      border-bottom: 1px solid var(--border);
+      border-radius: 14px 14px 0 0;
+    }
+
+    .panel.section-transcript .panel-head h3 {
+      color: var(--primary-2);
+    }
+
+    .bubble-time {
+      display: block;
+      font-size: 0.66rem;
+      opacity: 0.55;
+      margin-top: 0.25rem;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .skeleton {
+      background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 50%, #f1f5f9 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s linear infinite;
+      border-radius: 8px;
+      height: 1.1rem;
+    }
+
+    @keyframes shimmer {
+      0% {
+        background-position: -200% 0;
+      }
+
+      100% {
+        background-position: 200% 0;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .stat-tiles {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .detail-grid-stats {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 600px) {
+      .stat-tiles {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .detail-grid-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .bubble {
+        max-width: 90%;
+      }
+    }
+
+    /* ============ Sidebar overlay (mobile) ============ */
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 18, 38, 0.45);
+      z-index: 90;
+      backdrop-filter: blur(2px);
+    }
+
+    .sidebar-overlay.show {
+      display: block;
+    }
+
+    /* ============ Responsive ============ */
+    @media (max-width: 1360px) {
+      .stats {
+        grid-template-columns: repeat(3, minmax(160px, 1fr));
+      }
+
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+
+      .grid-3 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 1100px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 270px;
+        z-index: 100;
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+        box-shadow: var(--shadow-lg);
+      }
+
+      .hamburger {
+        display: inline-flex;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .main {
+        padding: 0.85rem;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, minmax(140px, 1fr));
+      }
+
+      .metrics-mini {
+        grid-template-columns: 1fr;
+      }
+
+      .donut-wrap {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .activity-item {
+        grid-template-columns: 9px 1fr;
+      }
+
+      .activity-item>div:nth-child(3),
+      .activity-item>div:nth-child(4) {
+        grid-column: 2 / -1;
+        font-size: 0.76rem;
+      }
+
+      .topbar-right .tiny-btn:not(.btn-primary) {
+        display: none;
+      }
+
+      .search-wrap {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <div class="app">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="logo-box">BT</div>
+        <div class="brand-name">BodhiTalk</div>
+      </div>
+
+      <nav class="menu">
+        <a class="menu-item active" href="#dashboard" data-view="dashboard">
+          <span class="menu-icon">DB</span><span>Dashboard</span>
+        </a>
+        <a class="menu-item" href="#campaigns" data-view="campaigns"><span
+            class="menu-icon">CP</span><span>Campaigns</span></a>
+        <a class="menu-item" href="#leads" data-view="leads"><span class="menu-icon">LD</span><span>Leads</span></a>
+        <a class="menu-item" href="#calls" data-view="calls"><span class="menu-icon">CL</span><span>Calls</span></a>
+        <a class="menu-item" href="#agents" data-view="agents"><span class="menu-icon">AG</span><span>Agents</span></a>
+        <a class="menu-item" href="#reports" data-view="reports"><span
+            class="menu-icon">RP</span><span>Reports</span></a>
+      </nav>
+
+      <div class="side-card">
+        <h4>Live Status</h4>
+        <p><span class="dot"></span>All systems operational</p>
+      </div>
+
+      <div class="profile">
+        <div class="avatar">CRML</div>
+        <div>
+          <p class="name">CRML</p>
+          <p class="role">Admin</p>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div class="topbar-left">
+          <button class="hamburger" id="hamburgerBtn" aria-label="Open menu">
+            <span></span>
+          </button>
+          <div class="search-wrap">
+            <input type="search" id="searchInput" placeholder="Search campaigns, leads, mobile numbers...">
+          </div>
+        </div>
+        <div class="topbar-right">
+          <button type="button" class="tiny-btn" id="dateRangeBtn"></button>
+          <button type="button" class="tiny-btn">Filters</button>
+          <button type="button" class="btn-primary tiny-btn" id="newCampaignBtn">+ New Campaign</button>
+        </div>
+      </div>
+
+      <div id="view-dashboard" class="view active" data-view="dashboard">
+        <header class="hero">
+          <h1>Outbound Campaign Studio</h1>
+          <p>Upload your lead sheet, launch a campaign, and track every call status in real time.</p>
+        </header>
+
+        <section class="stats">
+          <article class="stat">
+            <div class="stat-icon icon-campaigns">C</div>
+            <div>
+              <div class="label">Campaigns</div>
+              <div class="value" id="statCampaigns">0</div>
+            </div>
+          </article>
+          <article class="stat">
+            <div class="stat-icon icon-originated">O</div>
+            <div>
+              <div class="label">Originated</div>
+              <div class="value" id="statOriginated">0</div>
+            </div>
+          </article>
+          <article class="stat">
+            <div class="stat-icon icon-completed">CM</div>
+            <div>
+              <div class="label">Completed</div>
+              <div class="value" id="statCompleted">0</div>
+            </div>
+          </article>
+          <article class="stat">
+            <div class="stat-icon icon-failed">F</div>
+            <div>
+              <div class="label">Failed</div>
+              <div class="value" id="statFailed">0</div>
+            </div>
+          </article>
+          <article class="stat">
+            <div class="stat-icon icon-total">T</div>
+            <div>
+              <div class="label">Total Leads</div>
+              <div class="value" id="statTotal">0</div>
+            </div>
+          </article>
+        </section>
+
+        <section class="grid-2">
+          <article class="panel" id="uploadPanel">
+            <h2>Launch New Campaign</h2>
+            <p class="sub">
+              Required columns: <code>name</code>, <code>mobile</code>. Optional:
+              <code>product</code>, <code>issue</code>, <code>call_type</code>, <code>language</code>.
+            </p>
+
+            <form id="upload-form">
+              <div class="field">
+                <label for="campaign-name">Campaign name</label>
+                <input type="text" id="campaign-name" name="campaign_name" placeholder="e.g. Hindalco NPS – Apr 2026"
+                  maxlength="120">
+              </div>
+              <div class="field">
+                <label for="campaign-type">Campaign type</label>
+                <select id="campaign-type" name="campaign_type">
+                  <option value="">— Select type —</option>
+                  <option value="NPS">NPS</option>
+                  <option value="Sales">Sales</option>
+                  <option value="Service">Service</option>
+                  <option value="Real Estate">Real Estate</option>
+                  <option value="Appliances">Appliances</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="file">Leads file (.csv / .xlsx / .xlsm)</label>
+                <input type="file" id="file" name="file" accept=".csv,.xlsx,.xlsm" required>
+              </div>
+              <div class="field">
+                <label for="rate">Calls per minute</label>
+                <input type="text" id="rate" name="rate_per_min" value="6" readonly
+                  style="background:#f3f4f6;cursor:not-allowed;"
+                  title="Auto-calculated as 6 × lead count. Edit disabled by policy.">
+                <small style="color:#6b7280;display:block;margin-top:4px;">
+                  Auto: 6 × lead count. Pick a CSV/XLSX file to preview; final value is set by the server.
+                </small>
+              </div>
+              <button class="start-btn" type="submit" id="startBtn">Start Campaign</button>
+            </form>
+            <div id="latestCampaign" class="latest-campaign" aria-live="polite"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <div>
+                <h2>Active &amp; Past Campaigns</h2>
+                <p class="sub">Showing 5 most recent. Click a campaign to view contact details.</p>
+              </div>
+              <button type="button" class="tiny-btn" id="refresh-btn">Refresh Now</button>
+            </div>
+            <div id="campaigns-list" class="campaign-list"></div>
+          </article>
+        </section>
+
+        <section class="grid-3">
+          <article class="panel">
+            <div class="panel-head">
+              <h3>Campaign Analytics</h3>
+              <button type="button" class="tiny-btn">This Week</button>
+            </div>
+            <div class="metrics-mini">
+              <div class="mini-card" style="background: #eef2ff; border-color: #c7d2fe;">
+                <div class="k" style="color: #4338ca;">Latest Number Dialed</div>
+                <div class="v" id="metricLatestNumber"
+                  style="color: #4338ca; font-size: 0.95rem; word-break: break-all;">-</div>
+              </div>
+              <div class="mini-card">
+                <div class="k">Total Calls</div>
+                <div class="v" id="metricTotalCalls">0</div>
+              </div>
+              <div class="mini-card">
+                <div class="k">Connection Rate</div>
+                <div class="v" id="metricConnRate">0%</div>
+              </div>
+              <div class="mini-card">
+                <div class="k">Avg. Lead Time</div>
+                <div class="v" id="metricAvgTime">0s</div>
+              </div>
+            </div>
+            <div class="trend-box">
+              <svg class="trend-svg" viewBox="0 0 580 190" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#6366f1"></stop>
+                    <stop offset="100%" stop-color="#06b6d4"></stop>
+                  </linearGradient>
+                  <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#818cf8" stop-opacity="0.32"></stop>
+                    <stop offset="100%" stop-color="#818cf8" stop-opacity="0.02"></stop>
+                  </linearGradient>
+                </defs>
+                <path id="trendArea" fill="url(#fillGrad)" stroke="none"></path>
+                <path id="trendPath" fill="none" stroke="url(#lineGrad)" stroke-width="3" stroke-linecap="round"
+                  stroke-linejoin="round"></path>
+                <g id="trendDots"></g>
+              </svg>
+              <div class="trend-labels" id="trendLabels"></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <h3>Call Disposition</h3>
+              <button type="button" class="tiny-btn">This Week</button>
+            </div>
+            <div class="donut-wrap">
+              <div class="donut-svg-wrap">
+                <svg class="donut-svg" viewBox="0 0 120 120" id="donutSvg">
+                  <circle class="bg" cx="60" cy="60" r="48" stroke-width="14"></circle>
+                  <g id="donutSegments"></g>
+                </svg>
+                <div class="donut-center">
+                  <div>
+                    <strong id="donutTotal">0</strong>
+                    Total
+                  </div>
+                </div>
+              </div>
+              <div class="legend" id="legend"></div>
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-head">
+              <h3>Top Agents</h3>
+              <button type="button" class="tiny-btn">This Week</button>
+            </div>
+            <div class="table-wrap">
+              <table class="agents-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Agent</th>
+                    <th>Total Calls</th>
+                    <th>Conn. Rate</th>
+                  </tr>
+                </thead>
+                <tbody id="agentsBody"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="grid-2" style="grid-template-columns: 1.6fr 1fr; margin-bottom:0;">
+          <article class="panel">
+            <div class="panel-head">
+              <h3>Recent Activity</h3>
+              <button type="button" class="tiny-btn">View All</button>
+            </div>
+            <ul class="activity-list" id="activityList"></ul>
+          </article>
+
+          <article class="panel">
+            <h3>Quick Actions</h3>
+            <p class="sub">Fast launch shortcuts for common outbound tasks.</p>
+            <div class="quick-grid" style="margin-top:0.7rem;">
+              <div class="quick-card" data-action="upload">
+                <h4>Upload Leads</h4>
+                <p>Import new lead list</p>
+              </div>
+              <div class="quick-card" data-action="campaign">
+                <h4>Create Campaign</h4>
+                <p>Launch a new campaign</p>
+              </div>
+              <div class="quick-card" data-action="lists">
+                <h4>Manage Lists</h4>
+                <p>View all lead lists</p>
+              </div>
+              <div class="quick-card" data-action="reports">
+                <h4>View Reports</h4>
+                <p>Analytics and insights</p>
+              </div>
+            </div>
+          </article>
+        </section>
+      </div>
+
+      <div id="view-campaigns" class="view" data-view="campaigns">
+        <header class="hero">
+          <h1>Campaigns</h1>
+          <p>All active and past campaigns in one place.</p>
+        </header>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Campaign List</h2>
+              <p class="sub">Uses the same live data as the dashboard.</p>
+            </div>
+            <button type="button" class="tiny-btn" id="refresh-btn-page">Refresh</button>
+          </div>
+          <div id="campaigns-list-page" class="campaign-list"></div>
+        </section>
+      </div>
+
+      <div id="view-leads" class="view" data-view="leads">
+        <header class="hero">
+          <h1>Leads</h1>
+          <p>Flattened list of leads from your recent campaigns.</p>
+        </header>
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Lead Directory</h2>
+              <p class="sub">Newest first.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mobile</th>
+                  <th>Name</th>
+                  <th>Campaign</th>
+                  <th>Status</th>
+                  <th>Started</th>
+                  <th>Error</th>
+                </tr>
+              </thead>
+              <tbody id="leadsBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div id="view-lists" class="view" data-view="lists">
+        <header class="hero">
+          <h1>Lists</h1>
+          <p>Saved lists UI placeholder.</p>
+        </header>
+        <section class="panel">
+          <div class="empty">Lists page is UI-only for now (no backend endpoint wired).</div>
+        </section>
+      </div>
+
+      <div id="view-scripts" class="view" data-view="scripts">
+        <header class="hero">
+          <h1>Scripts</h1>
+          <p>Script library UI placeholder.</p>
+        </header>
+        <section class="panel">
+          <div class="empty">Scripts page is UI-only for now (no backend endpoint wired).</div>
+        </section>
+      </div>
+
+      <div id="view-calls" class="view" data-view="calls">
+        <header class="hero">
+          <h1>Calls</h1>
+          <p>Recent call activity derived from campaign lead status.</p>
+        </header>
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Recent Activity</h2>
+          </div>
+          <ul class="activity-list" id="activityListPage"></ul>
+        </section>
+      </div>
+
+      <div id="view-agents" class="view" data-view="agents">
+        <header class="hero">
+          <h1>Agents</h1>
+          <p>Top agents snapshot (demo data derived from totals).</p>
+        </header>
+        <section class="panel">
+          <div class="table-wrap">
+            <table class="agents-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Agent</th>
+                  <th>Total Calls</th>
+                  <th>Conn. Rate</th>
+                </tr>
+              </thead>
+              <tbody id="agentsBodyPage"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div id="view-campaign-detail" class="view" data-view="campaign-detail">
+        <div class="detail-header">
+          <button class="back-btn" id="campaignDetailBack">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Back
+          </button>
+          <div style="flex:1;min-width:200px;">
+            <h1 class="detail-title" id="campaignDetailTitle">Campaign</h1>
+            <p class="detail-subtitle" id="campaignDetailSubtitle"></p>
+          </div>
+          <span class="status-pill" id="campaignDetailStatus" style="display:none;"></span>
+        </div>
+
+        <section class="panel" style="margin-bottom:0.85rem;">
+          <h3 style="margin:0 0 0.7rem;">Campaign Stats</h3>
+          <div class="detail-grid-stats" id="campaignDetailStats"></div>
+          <div class="progress" id="campaignDetailProgress"><span style="width:0%"></span></div>
+          <div class="progress-meta" id="campaignDetailProgressMeta"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Contacts</h2>
+              <p class="sub">Click any contact to view call transcript and extracted data.</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Mobile</th>
+                  <th>Product</th>
+                  <th>Status</th>
+                  <th>Started</th>
+                  <th>Duration</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="campaignDetailContacts"></tbody>
+            </table>
+          </div>
+          <div id="campaignDetailContactsFooter" style="margin-top:0.6rem;"></div>
+        </section>
+      </div>
+
+      <div id="view-call-detail" class="view" data-view="call-detail">
+        <div class="detail-header">
+          <button class="back-btn" id="callDetailBack">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+            Back to Campaign
+          </button>
+          <div style="flex:1;min-width:200px;">
+            <h1 class="detail-title" id="callDetailTitle">Call Details</h1>
+            <p class="detail-subtitle" id="callDetailSubtitle"></p>
+          </div>
+          <span class="status-pill" id="callDetailStatus" style="display:none;"></span>
+        </div>
+
+        <div id="callDetailBody"></div>
+      </div>
+
+      <div id="view-reports" class="view" data-view="reports">
+        <header class="hero">
+          <h1>Reports</h1>
+          <p>Quick summary from current campaign data.</p>
+        </header>
+        <section class="panel">
+          <div class="metrics-mini">
+            <div class="mini-card">
+              <div class="k">Campaigns</div>
+              <div class="v" id="reportCampaigns">0</div>
+            </div>
+            <div class="mini-card">
+              <div class="k">Total Leads</div>
+              <div class="v" id="reportTotal">0</div>
+            </div>
+            <div class="mini-card">
+              <div class="k">Connection Rate</div>
+              <div class="v" id="reportConnRate">0%</div>
+            </div>
+          </div>
+          <div class="empty" style="margin-top:0.7rem;">More reports can be added when backend metrics endpoints are
+            available.</div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <script>
+    const q = (s) => document.querySelector(s);
+    const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (m) => (
+      { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]
+    ));
+    const statusClass = (s) => String(s || "queued").toLowerCase();
+    const fmtDateTime = (ts) => ts ? new Date(ts * 1000).toLocaleString() : "-";
+    const fmtNum = (n) => Number(n || 0).toLocaleString();
+
+    const CAMPAIGN_PAGE_SIZE = 5;
+    const LEAD_PAGE_SIZE = 10;
+
+    let latestCampaigns = [];
+    let expandedCampaigns = new Set();
+    let visibleLeadsByCampaign = {};
+    let visibleCampaignCount = CAMPAIGN_PAGE_SIZE;
+    let searchQuery = "";
+
+    const translationCache = {};
+    const translationMode = {};
+    window._transcriptData = {};
+
+    function renderBubbles(msgs) {
+      if (!msgs || !msgs.length)
+        return `<div class="empty" style="grid-column:1/-1;">No transcript saved for this call.</div>`;
+      return msgs.map((m) => {
+        const role = m.role === "user" ? "user" : "assistant";
+        const label = role === "user" ? "Customer" : "Agent";
+        return `<div class="bubble ${role}"><div class="bubble-role">${label}</div>${esc(m.content || "")}</div>`;
+      }).join("");
+    }
+
+    async function toggleTranslation(uuid, btn) {
+      const box = document.getElementById(`transcriptBox-${uuid}`);
+      if (!box) return;
+      const mode = translationMode[uuid] || "original";
+      if (mode === "english") {
+        translationMode[uuid] = "original";
+        btn.textContent = "Show English ▸";
+        box.innerHTML = renderBubbles(window._transcriptData[uuid] || []);
+        return;
+      }
+      if (translationCache[uuid]) {
+        translationMode[uuid] = "english";
+        btn.textContent = "Show Original";
+        box.innerHTML = renderBubbles(translationCache[uuid]);
+        return;
+      }
+      btn.disabled = true;
+      btn.textContent = "Translating…";
+      const lang = btn.dataset.lang || "unknown";
+      try {
+        const r = await fetch("/api/outbound/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ transcript: window._transcriptData[uuid] || [], language: lang }),
+        });
+        if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        const data = await r.json();
+        translationCache[uuid] = data.translated;
+        translationMode[uuid] = "english";
+        btn.textContent = "Show Original";
+        box.innerHTML = renderBubbles(data.translated);
+      } catch (e) {
+        btn.textContent = "Show English ▸";
+        toast("Translation failed: " + (e.message || "unknown error"), "error");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    // ============ Toast notifications ============
+    function toast(text, kind = "info", ms = 4200) {
+      const stack = q("#toastStack");
+      const el = document.createElement("div");
+      el.className = `toast ${kind}`;
+      el.textContent = text;
+      stack.appendChild(el);
+      const remove = () => {
+        el.classList.add("leaving");
+        setTimeout(() => el.remove(), 220);
+      };
+      setTimeout(remove, ms);
+      el.addEventListener("click", remove);
+    }
+
+    // ============ Date range chip ============
+    function setDateRangeChip() {
+      const now = new Date();
+      const from = new Date(now);
+      from.setDate(now.getDate() - 6);
+      const opts = { month: "short", day: "numeric" };
+      q("#dateRangeBtn").textContent = `${from.toLocaleDateString(undefined, opts)} - ${now.toLocaleDateString(undefined, opts)}`;
+    }
+
+    // ============ Helpers ============
+    function flattenLeads(campaigns) {
+      const out = [];
+      for (const c of campaigns) {
+        const leads = c.leads || [];
+        for (const l of leads) {
+          out.push({
+            ...l,
+            campaign_id: c.id,
+            campaign_created_at: c.created_at || 0,
+            ts: l.started_at || c.created_at || 0
+          });
+        }
+      }
+      return out;
+    }
+
+    function formatDuration(seconds) {
+      const s = Math.max(0, Math.round(seconds || 0));
+      if (s < 60) return `${s}s`;
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return `${m}m ${String(r).padStart(2, "0")}s`;
+    }
+
+    function filterCampaigns(campaigns, query) {
+      if (!query) return campaigns;
+      const q = query.toLowerCase().trim();
+      return campaigns
+        .map((c) => {
+          const matchesCampaign =
+            String(c.id || "").toLowerCase().includes(q) ||
+            String(c.status || "").toLowerCase().includes(q);
+          const filteredLeads = (c.leads || []).filter((l) =>
+            String(l.name || "").toLowerCase().includes(q) ||
+            String(l.mobile || "").toLowerCase().includes(q) ||
+            String(l.product || "").toLowerCase().includes(q) ||
+            String(l.status || "").toLowerCase().includes(q)
+          );
+          if (matchesCampaign) return c;
+          if (filteredLeads.length) return { ...c, leads: filteredLeads };
+          return null;
+        })
+        .filter(Boolean);
+    }
+
+    // ============ Render: summary stats ============
+    function renderSummary(campaigns) {
+      let originated = 0;
+      let completed = 0;
+      let failed = 0;
+      let total = 0;
+
+      for (const c of campaigns) {
+        const counts = c.counts || {};
+        originated += counts.originated || 0;
+        completed += counts.completed || 0;
+        failed += counts.failed || 0;
+        total += c.total || 0;
+      }
+
+      q("#statCampaigns").textContent = campaigns.length;
+      q("#statOriginated").textContent = originated;
+      q("#statCompleted").textContent = completed;
+      q("#statFailed").textContent = failed;
+      q("#statTotal").textContent = fmtNum(total);
+
+      q("#metricTotalCalls").textContent = fmtNum(total);
+      const connRate = total ? (((originated + completed) / total) * 100) : 0;
+      q("#metricConnRate").textContent = `${connRate.toFixed(1)}%`;
+
+      const leads = flattenLeads(campaigns);
+      const durations = leads
+        .map((l) => (Number(l.finished_at || 0) - Number(l.started_at || 0)))
+        .filter((d) => d > 0);
+      const avg = durations.length ? durations.reduce((a, b) => a + b, 0) / durations.length : 0;
+      q("#metricAvgTime").textContent = formatDuration(avg);
+
+      const metricLatestNumber = q("#metricLatestNumber");
+      if (metricLatestNumber) {
+        if (leads.length) {
+          const sorted = [...leads].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+          const latest = sorted[0];
+          metricLatestNumber.textContent = `${latest.mobile || '-'} (${latest.status || 'queued'})`;
+        } else {
+          metricLatestNumber.textContent = "-";
+        }
+      }
+    }
+
+    // ============ Render: campaign cards (collapsible) ============
+    function campaignCard(c) {
+      const counts = c.counts || {};
+      const total = c.total || 0;
+      const done = (counts.originated || 0) + (counts.completed || 0) + (counts.failed || 0);
+      const progress = total ? Math.round((done / total) * 100) : 0;
+      const status = statusClass(c.status);
+      const expanded = expandedCampaigns.has(c.id);
+
+      const tiles = [
+        { k: "Total", v: total, cls: "total" },
+        { k: "Queued", v: counts.queued || 0, cls: "queued" },
+        { k: "Dialing", v: counts.dialing || 0, cls: "dialing" },
+        { k: "Originated", v: counts.originated || 0, cls: "originated" },
+        { k: "Completed", v: counts.completed || 0, cls: "completed" },
+        { k: "Failed", v: counts.failed || 0, cls: "failed" },
+      ].map((t) => `
+        <div class="stat-tile ${t.cls}">
+          <div class="stat-tile-k">${t.k}</div>
+          <div class="stat-tile-v">${fmtNum(t.v)}</div>
+        </div>
+      `).join("");
+
+      const bodyHtml = expanded ? `
+        <div class="campaign-body">
+          <div class="stat-tiles">${tiles}</div>
+          <div class="progress"><span style="width:${progress}%"></span></div>
+          <div class="progress-meta"><span>${done} / ${total} processed</span><span>${progress}%</span></div>
+          <button class="view-details-btn" data-view-details="${esc(c.id)}">
+            <span>View Full Campaign Details</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+      ` : "";
+
+      return `
+        <section class="campaign-card ${expanded ? "" : "collapsed"}" data-id="${esc(c.id)}">
+          <div class="campaign-head" data-toggle="${esc(c.id)}">
+            <div>
+              <h3 class="campaign-name">
+                <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                ${esc(c.name || `Campaign ${c.id}`)}
+              </h3>
+              <div class="campaign-meta">${fmtDateTime(c.created_at)} · ID: ${esc(c.id)} · ${esc(c.rate_per_min)}/min · ${fmtNum(total)} contacts · ${progress}% done</div>
+            </div>
+            <div class="campaign-actions">
+              ${c.campaign_type ? `<span class="chip type-chip">${esc(c.campaign_type)}</span>` : ""}
+              <span class="status-pill ${status}">${esc(status)}</span>
+              ${status === "running"
+          ? `<button class="tiny-btn" data-stop="${esc(c.id)}">Stop</button>`
+          : ""}
+              <button class="tiny-btn details-btn" data-toggle-text="${esc(c.id)}">${expanded ? "Hide" : "Expand"}</button>
+            </div>
+          </div>
+          ${bodyHtml}
+        </section>
+      `;
+    }
+
+    function toggleCampaign(id, rootSel) {
+      if (expandedCampaigns.has(id)) {
+        expandedCampaigns.delete(id);
+      } else {
+        expandedCampaigns.add(id);
+        if (!visibleLeadsByCampaign[id]) visibleLeadsByCampaign[id] = LEAD_PAGE_SIZE;
+      }
+      renderCampaignsInto(rootSel, latestCampaigns);
+    }
+
+    function attachCampaignHandlers(rootSel) {
+      const root = q(rootSel);
+      if (!root) return;
+      root.querySelectorAll("[data-toggle]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          if (e.target.closest("[data-stop]")) return;
+          if (e.target.closest("[data-toggle-text]")) return;
+          toggleCampaign(el.getAttribute("data-toggle"), rootSel);
+        });
+      });
+      root.querySelectorAll("[data-toggle-text]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          toggleCampaign(el.getAttribute("data-toggle-text"), rootSel);
+        });
+      });
+      root.querySelectorAll("[data-stop]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          stopCampaign(el.getAttribute("data-stop"));
+        });
+      });
+      root.querySelectorAll("[data-view-details]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          const id = el.getAttribute("data-view-details");
+          window.location.hash = `#campaign/${encodeURIComponent(id)}`;
+        });
+      });
+      root.querySelectorAll("[data-see-more]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          visibleCampaignCount += CAMPAIGN_PAGE_SIZE;
+          renderCampaignsInto(rootSel, latestCampaigns);
+        });
+      });
+      root.querySelectorAll("[data-see-less]").forEach((el) => {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          visibleCampaignCount = CAMPAIGN_PAGE_SIZE;
+          renderCampaignsInto(rootSel, latestCampaigns);
+          root.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      });
+    }
+
+    function renderCampaignsInto(rootSel, campaigns) {
+      const root = q(rootSel);
+      if (!root) return;
+      const filtered = filterCampaigns(campaigns, searchQuery);
+      if (!filtered.length) {
+        root.innerHTML = searchQuery
+          ? `<div class="empty">No campaigns match "${esc(searchQuery)}".</div>`
+          : '<div class="empty">No campaigns yet. Upload leads to launch your first campaign.</div>';
+        return;
+      }
+      const sorted = [...filtered].sort((a, b) => (b.created_at || 0) - (a.created_at || 0));
+      const visibleCount = Math.max(CAMPAIGN_PAGE_SIZE, visibleCampaignCount);
+      const visible = sorted.slice(0, visibleCount);
+      const remaining = sorted.length - visible.length;
+      const nextBatch = Math.min(remaining, CAMPAIGN_PAGE_SIZE);
+
+      let html = visible.map(campaignCard).join("");
+      if (remaining > 0) {
+        html += `
+          <button class="see-more-btn" data-see-more>
+            See ${nextBatch} more campaign${nextBatch === 1 ? "" : "s"}
+            <span class="see-more-meta">Showing ${visible.length} of ${sorted.length}</span>
+          </button>
+        `;
+      } else if (sorted.length > CAMPAIGN_PAGE_SIZE) {
+        html += `
+          <button class="see-more-btn ghost" data-see-less>
+            Collapse list (${sorted.length} campaigns shown)
+          </button>
+        `;
+      }
+      root.innerHTML = html;
+      attachCampaignHandlers(rootSel);
+    }
+
+    // ============ Render: trend ============
+    function renderTrend(campaigns) {
+      const labels = [];
+      const values = [];
+      const now = new Date();
+      const bucket = {};
+
+      for (let i = 6; i >= 0; i -= 1) {
+        const d = new Date(now);
+        d.setDate(now.getDate() - i);
+        const key = d.toISOString().slice(0, 10);
+        labels.push(d.toLocaleDateString(undefined, { month: "short", day: "numeric" }));
+        bucket[key] = 0;
+      }
+
+      const leads = flattenLeads(campaigns);
+      for (const l of leads) {
+        if (!l.ts) continue;
+        const key = new Date(l.ts * 1000).toISOString().slice(0, 10);
+        if (Object.prototype.hasOwnProperty.call(bucket, key)) bucket[key] += 1;
+      }
+
+      for (const key of Object.keys(bucket)) values.push(bucket[key]);
+
+      const width = 580;
+      const height = 190;
+      const padding = 16;
+      const min = Math.min(...values, 0);
+      const max = Math.max(...values, 1);
+      const range = Math.max(1, max - min);
+      const step = (width - (padding * 2)) / (values.length - 1 || 1);
+
+      const points = values.map((v, i) => {
+        const x = padding + (i * step);
+        const y = height - padding - (((v - min) / range) * (height - (padding * 2)));
+        return [x, y];
+      });
+
+      const line = points.map((p, i) => `${i === 0 ? "M" : "L"}${p[0]},${p[1]}`).join(" ");
+      const area = `${line} L ${padding + ((values.length - 1 || 0) * step)},${height - padding} L ${padding},${height - padding} Z`;
+
+      q("#trendPath").setAttribute("d", line);
+      q("#trendArea").setAttribute("d", area);
+      q("#trendDots").innerHTML = points.map((p) =>
+        `<circle cx="${p[0]}" cy="${p[1]}" r="4.5" fill="#ffffff" stroke="#4f46e5" stroke-width="2"></circle>`
+      ).join("");
+      q("#trendLabels").innerHTML = labels.map((l) => `<span>${esc(l)}</span>`).join("");
+    }
+
+    // ============ Render: SVG donut ============
+    function renderDisposition(campaigns) {
+      let qd = 0;
+      let dl = 0;
+      let og = 0;
+      let cm = 0;
+      let fl = 0;
+
+      for (const c of campaigns) {
+        const counts = c.counts || {};
+        qd += counts.queued || 0;
+        dl += counts.dialing || 0;
+        og += counts.originated || 0;
+        cm += counts.completed || 0;
+        fl += counts.failed || 0;
+      }
+
+      const series = [
+        { name: "Originated", value: og, color: "#3b82f6" },
+        { name: "Completed", value: cm, color: "#14b8a6" },
+        { name: "Dialing", value: dl, color: "#f59e0b" },
+        { name: "Failed", value: fl, color: "#ef4444" },
+        { name: "Queued", value: qd, color: "#94a3b8" }
+      ];
+
+      const total = series.reduce((a, b) => a + b.value, 0);
+      q("#donutTotal").textContent = fmtNum(total);
+
+      const segGroup = q("#donutSegments");
+      const r = 48;
+      const cx = 60;
+      const cy = 60;
+      const circumference = 2 * Math.PI * r;
+
+      if (!total) {
+        segGroup.innerHTML = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#cbd5e1" stroke-width="14" stroke-dasharray="${circumference} ${circumference}"></circle>`;
+      } else {
+        let acc = 0;
+        const segs = [];
+        for (const s of series) {
+          if (!s.value) continue;
+          const frac = s.value / total;
+          const dash = frac * circumference;
+          const gap = circumference - dash;
+          const offset = -acc * circumference;
+          segs.push(`<circle class="seg" cx="${cx}" cy="${cy}" r="${r}" stroke="${s.color}" stroke-width="14"
+            stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${offset}"></circle>`);
+          acc += frac;
+        }
+        segGroup.innerHTML = segs.join("");
+      }
+
+      q("#legend").innerHTML = series.map((s) => {
+        const pct = total ? ((s.value / total) * 100).toFixed(1) : "0.0";
+        return `
+          <div class="legend-item">
+            <span class="legend-left"><span class="legend-dot" style="background:${s.color}"></span>${esc(s.name)}</span>
+            <strong>${fmtNum(s.value)} (${pct}%)</strong>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // ============ Render: agents ============
+    function renderAgentsInto(bodySel, campaigns) {
+      const body = q(bodySel);
+      if (!body) return;
+      let completed = 0;
+      let total = 0;
+      for (const c of campaigns) {
+        const counts = c.counts || {};
+        completed += counts.completed || 0;
+        total += c.total || 0;
+      }
+      const connRate = total ? (((completed) / total) * 100).toFixed(1) : "0.0";
+      body.innerHTML = `<tr><td>1</td><td>Priya</td><td>${fmtNum(completed)}</td><td>${connRate}%</td></tr>`;
+    }
+
+    // ============ Render: activity ============
+    function renderActivityInto(listSel, campaigns) {
+      const list = q(listSel);
+      if (!list) return;
+      const leads = flattenLeads(campaigns)
+        .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+        .slice(0, 6);
+
+      if (!leads.length) {
+        list.innerHTML = '<li class="empty">No recent activity yet.</li>';
+        return;
+      }
+
+      const colorByStatus = {
+        originated: "#0ea5e9",
+        completed: "#16a34a",
+        failed: "#ef4444",
+        dialing: "#ea580c",
+        queued: "#64748b"
+      };
+
+      list.innerHTML = leads.map((l) => {
+        const s = statusClass(l.status);
+        const dotColor = colorByStatus[s] || "#64748b";
+        return `
+          <li class="activity-item">
+            <span class="legend-dot" style="background:${dotColor};"></span>
+            <div>
+              <strong>${esc((l.status || "queued").replace("_", " "))}</strong><br>
+              <span style="color:#64748b;">Lead: ${esc(l.name || l.mobile || "Unknown")}</span>
+            </div>
+            <div style="color:#475569;">Campaign: ${esc(l.campaign_id || "-")}</div>
+            <div class="activity-time">${fmtDateTime(l.ts)}</div>
+          </li>
+        `;
+      }).join("");
+    }
+
+    // ============ Render: latest campaign panel ============
+    function renderLatestCampaign(campaigns) {
+      const box = q("#latestCampaign");
+      if (!campaigns || !campaigns.length) {
+        box.className = "latest-campaign";
+        box.innerHTML = "";
+        return;
+      }
+      const latest = campaigns.reduce((best, c) => {
+        if (!best) return c;
+        return (Number(c.created_at || 0) > Number(best.created_at || 0)) ? c : best;
+      }, null);
+      if (!latest) {
+        box.className = "latest-campaign";
+        box.innerHTML = "";
+        return;
+      }
+      const status = statusClass(latest.status);
+      box.className = "latest-campaign show";
+      const leads = Array.isArray(latest.leads) ? latest.leads : [];
+      const count = Number(latest.total || leads.length || 0);
+      const rows = leads.slice(0, 50).map((l) => {
+        const mobile = esc(l.mobile || "");
+        const who = esc(l.name || "");
+        return `
+          <div class="num-row">
+            <div class="mobile">${mobile || "-"}</div>
+            <div class="who">${who || ""}</div>
+          </div>
+        `;
+      }).join("");
+      box.innerHTML = `
+        <div class="latest-campaign-head">
+          <div>
+            <div class="k">Latest Campaign</div>
+            <div class="v">${fmtNum(count)} lead${count === 1 ? "" : "s"}</div>
+            <div class="subv">${fmtDateTime(latest.created_at)} · ${esc(latest.rate_per_min)}/min · Campaign ${esc(latest.id)}</div>
+          </div>
+          <div class="status-pill ${status}">${esc(status)}</div>
+        </div>
+        ${rows ? `<div class="numbers" role="list">${rows}</div>` : ""}
+      `;
+    }
+
+    // ============ Render: leads page ============
+    function renderLeadsPage(campaigns) {
+      const body = q("#leadsBody");
+      if (!body) return;
+      const filtered = filterCampaigns(campaigns, searchQuery);
+      const leads = flattenLeads(filtered)
+        .sort((a, b) => (b.ts || 0) - (a.ts || 0))
+        .slice(0, 200);
+
+      if (!leads.length) {
+        body.innerHTML = `<tr><td colspan="6" style="padding:0.85rem;color:var(--muted);">No leads yet.</td></tr>`;
+        return;
+      }
+
+      body.innerHTML = leads.map((l) => {
+        const s = statusClass(l.status);
+        return `
+          <tr>
+            <td>${esc(l.mobile)}</td>
+            <td>${esc(l.name)}</td>
+            <td>${esc(l.campaign_id || "")}</td>
+            <td><span class="cell-status ${s}">${esc(l.status || "queued")}</span></td>
+            <td>${fmtDateTime(l.ts)}</td>
+            <td>${l.error ? `<span title="${esc(l.error)}" style="color:#b91c1c;font-weight:700;">Error</span>` : "-"}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    // ============ Render: reports ============
+    function renderReports(campaigns) {
+      const reportCampaigns = q("#reportCampaigns");
+      const reportTotal = q("#reportTotal");
+      const reportConnRate = q("#reportConnRate");
+      if (!reportCampaigns || !reportTotal || !reportConnRate) return;
+
+      let originated = 0;
+      let completed = 0;
+      let total = 0;
+      for (const c of campaigns) {
+        const counts = c.counts || {};
+        originated += counts.originated || 0;
+        completed += counts.completed || 0;
+        total += c.total || 0;
+      }
+      reportCampaigns.textContent = campaigns.length;
+      reportTotal.textContent = fmtNum(total);
+      const rate = total ? (((originated + completed) / total) * 100) : 0;
+      reportConnRate.textContent = `${rate.toFixed(1)}%`;
+    }
+
+    // ============ Render: campaign detail page ============
+    function renderCampaignDetail() {
+      if (!currentDetailCampaignId) return;
+      const c = (latestCampaigns || []).find((x) => String(x.id) === String(currentDetailCampaignId));
+      const titleEl = q("#campaignDetailTitle");
+      const subEl = q("#campaignDetailSubtitle");
+      const statusEl = q("#campaignDetailStatus");
+      const statsEl = q("#campaignDetailStats");
+      const progEl = q("#campaignDetailProgress");
+      const progMeta = q("#campaignDetailProgressMeta");
+      const tbody = q("#campaignDetailContacts");
+      const footer = q("#campaignDetailContactsFooter");
+
+      if (!c) {
+        titleEl.textContent = `Campaign ${currentDetailCampaignId}`;
+        subEl.textContent = "Loading…";
+        statusEl.style.display = "none";
+        statsEl.innerHTML = "";
+        tbody.innerHTML = `<tr><td colspan="7" style="padding:1rem;color:var(--muted);">Campaign not found in current data. It may still be loading — auto-refresh active.</td></tr>`;
+        footer.innerHTML = "";
+        return;
+      }
+
+      const counts = c.counts || {};
+      const total = c.total || 0;
+      const done = (counts.originated || 0) + (counts.completed || 0) + (counts.failed || 0);
+      const progress = total ? Math.round((done / total) * 100) : 0;
+      const status = statusClass(c.status);
+
+      titleEl.textContent = c.name || `Campaign ${c.id}`;
+      subEl.textContent = `${fmtDateTime(c.created_at)} · ${c.rate_per_min}/min · ${fmtNum(total)} contacts`;
+      statusEl.style.display = "inline-flex";
+      statusEl.className = `status-pill ${status}`;
+      statusEl.textContent = status;
+
+      const tiles = [
+        { k: "Total", v: total, cls: "total" },
+        { k: "Queued", v: counts.queued || 0, cls: "queued" },
+        { k: "Dialing", v: counts.dialing || 0, cls: "dialing" },
+        { k: "Originated", v: counts.originated || 0, cls: "originated" },
+        { k: "Completed", v: counts.completed || 0, cls: "completed" },
+        { k: "Failed", v: counts.failed || 0, cls: "failed" },
+      ];
+      statsEl.innerHTML = tiles.map((t) => `
+        <div class="stat-tile ${t.cls}">
+          <div class="stat-tile-k">${t.k}</div>
+          <div class="stat-tile-v">${fmtNum(t.v)}</div>
+        </div>
+      `).join("");
+
+      progEl.querySelector("span").style.width = `${progress}%`;
+      progMeta.innerHTML = `<span>${done} / ${total} processed</span><span>${progress}%</span>`;
+
+      const allLeads = c.leads || [];
+      const visibleCount = visibleLeadsByCampaign[c.id] || LEAD_PAGE_SIZE;
+      const visibleLeads = allLeads.slice(0, visibleCount);
+      const remaining = allLeads.length - visibleLeads.length;
+      const nextBatch = Math.min(remaining, LEAD_PAGE_SIZE);
+
+      if (!allLeads.length) {
+        tbody.innerHTML = `<tr><td colspan="7" style="padding:1rem;color:var(--muted);">No contacts in this campaign yet.</td></tr>`;
+      } else {
+        tbody.innerHTML = visibleLeads.map((l) => {
+          const dur = (Number(l.finished_at || 0) - Number(l.started_at || 0));
+          // dur < 2 means finished_at wasn't updated by mark_completed (stale originate latency)
+          const durStr = dur >= 2 ? formatDuration(dur) : "-";
+          const needsFetch = dur < 2 && l.uuid && (l.status === "completed" || l.status === "originated");
+          const canOpen = !!l.uuid;
+          const sCls = statusClass(l.status);
+          return `
+            <tr class="${canOpen ? "contact-row" : ""}" ${canOpen ? `data-call-uuid="${esc(l.uuid)}"` : ""}>
+              <td>${esc(l.name || "-")}</td>
+              <td>${esc(l.mobile || "-")}</td>
+              <td>${esc(l.product || "-")}</td>
+              <td><span class="cell-status ${sCls}">${esc(l.status || "queued")}</span></td>
+              <td>${fmtDateTime(l.started_at)}</td>
+              <td class="dur-cell" ${needsFetch ? `data-fetch-uuid="${esc(l.uuid)}"` : ""}>${durStr}</td>
+              <td class="action-cell">${canOpen ? "View →" : "—"}</td>
+            </tr>
+          `;
+        }).join("");
+
+        tbody.querySelectorAll("[data-call-uuid]").forEach((row) => {
+          row.addEventListener("click", () => {
+            const uuid = row.getAttribute("data-call-uuid");
+            window.location.hash = `#call/${encodeURIComponent(uuid)}`;
+          });
+        });
+
+        // Lazily fetch real duration for completed leads with stale (near-zero) duration
+        tbody.querySelectorAll(".dur-cell[data-fetch-uuid]").forEach((cell) => {
+          const uuid = cell.getAttribute("data-fetch-uuid");
+          fetch(`/api/outbound/call/${encodeURIComponent(uuid)}`)
+            .then((r) => r.ok ? r.json() : null)
+            .then((data) => {
+              if (data && data.duration_seconds >= 1) {
+                cell.textContent = formatDuration(data.duration_seconds);
+                cell.removeAttribute("data-fetch-uuid");
+              }
+            })
+            .catch(() => { });
+        });
+      }
+
+      if (remaining > 0) {
+        footer.innerHTML = `
+          <button class="see-more-btn" id="campaignDetailLoadMore">
+            Load ${nextBatch} more contact${nextBatch === 1 ? "" : "s"}
+            <span class="see-more-meta">Showing ${visibleLeads.length} of ${allLeads.length}</span>
+          </button>
+        `;
+        q("#campaignDetailLoadMore").addEventListener("click", () => {
+          visibleLeadsByCampaign[c.id] = (visibleLeadsByCampaign[c.id] || LEAD_PAGE_SIZE) + LEAD_PAGE_SIZE;
+          renderCampaignDetail();
+        });
+      } else if (allLeads.length > LEAD_PAGE_SIZE) {
+        footer.innerHTML = `
+          <div style="text-align:center;color:var(--muted);font-size:0.8rem;padding:0.4rem 0;">
+            Showing all ${allLeads.length} contacts.
+            <button class="back-btn" style="padding:0.3rem 0.6rem;font-size:0.78rem;margin-left:0.4rem;" id="campaignDetailReset">Collapse</button>
+          </div>
+        `;
+        q("#campaignDetailReset").addEventListener("click", () => {
+          visibleLeadsByCampaign[c.id] = LEAD_PAGE_SIZE;
+          renderCampaignDetail();
+        });
+      } else {
+        footer.innerHTML = "";
+      }
+    }
+
+    // ============ Render: call detail page ============
+    async function renderCallDetail(uuid) {
+      const titleEl = q("#callDetailTitle");
+      const subEl = q("#callDetailSubtitle");
+      const statusEl = q("#callDetailStatus");
+      const body = q("#callDetailBody");
+
+      titleEl.textContent = `Call`;
+      subEl.textContent = uuid;
+      statusEl.style.display = "none";
+      body.innerHTML = `
+        <section class="panel" style="margin-bottom:0.85rem;">
+          <div class="skeleton" style="width:60%;"></div>
+          <div class="skeleton" style="width:40%;margin-top:0.5rem;"></div>
+          <div class="skeleton" style="width:80%;margin-top:0.5rem;height:5rem;"></div>
+        </section>
+      `;
+
+      try {
+        const r = await fetch(`/api/outbound/call/${encodeURIComponent(uuid)}`);
+        if (!r.ok) {
+          const j = await r.json().catch(() => ({}));
+          body.innerHTML = `<section class="panel"><div class="empty">Could not load call: ${esc(j.detail || r.statusText || "Unknown error")}</div></section>`;
+          return;
+        }
+        const data = await r.json();
+        if (data.campaign_id) currentDetailCampaignId = data.campaign_id;
+        const lead = data.lead || {};
+        const ext = data.extracted || {};
+        const transcript = Array.isArray(data.transcript) ? data.transcript : [];
+        const hasTranscriptFile = data.transcript_meta != null;
+        const hasExtractedFile = data.extracted != null;
+        const noPostCallData = !hasTranscriptFile && !hasExtractedFile;
+        const leadStatus = String(lead.status || "").toLowerCase();
+        const status = statusClass(lead.status);
+        const durStr = formatDuration(data.duration_seconds || 0);
+
+        let banner = "";
+        if (noPostCallData) {
+          if (leadStatus === "originated" || leadStatus === "dialing") {
+            banner = `
+              <section class="panel" style="margin-bottom:0.85rem;background:linear-gradient(180deg,#fff7ed,#fffbf3);border-color:#fed7aa;">
+                <strong style="color:#c2410c;">Call still in progress or did not complete.</strong>
+                <p class="sub" style="margin-top:0.3rem;">No transcript or extracted data has been saved yet. Lead status is <code>${esc(lead.status || "unknown")}</code>. Wait for the call to finish, then refresh.</p>
+              </section>`;
+          } else if (leadStatus === "failed") {
+            banner = `
+              <section class="panel" style="margin-bottom:0.85rem;background:linear-gradient(180deg,#fef2f2,#fff7f7);border-color:#fecaca;">
+                <strong style="color:#b91c1c;">Call failed.</strong>
+                <p class="sub" style="margin-top:0.3rem;">${esc(lead.error || "The call did not connect, so no transcript was saved.")}</p>
+              </section>`;
+          } else {
+            banner = `
+              <section class="panel" style="margin-bottom:0.85rem;background:#f8fafc;">
+                <strong>No transcript or extracted data on disk for this call.</strong>
+                <p class="sub" style="margin-top:0.3rem;">The call may not have reached the AudioSocket layer, or post-call save failed. Check server logs for UUID <code>${esc(uuid)}</code>.</p>
+              </section>`;
+          }
+        }
+
+        titleEl.textContent = lead.customer_name || lead.name || ext.name || "Call Details";
+        subEl.textContent = `${lead.phone_number || lead.mobile || ext.mobile || uuid}${data.campaign_id ? ` · Campaign ${data.campaign_id}` : ""}`;
+        if (lead.status) {
+          statusEl.style.display = "inline-flex";
+          statusEl.className = `status-pill ${status}`;
+          statusEl.textContent = status;
+        }
+
+        const recordingUrl = data.recording_url || ext.recording_url || lead.recording_url || "";
+        const customerName = lead.customer_name || lead.name || ext.name || "Unknown";
+        const customerMobile = lead.phone_number || lead.mobile || ext.mobile || "";
+        const initials = String(customerName).split(/\s+/).filter(Boolean).slice(0, 2).map(s => s[0] || "").join("").toUpperCase() || "?";
+
+        // Hide the duplicate header (we have the hero card now)
+        statusEl.style.display = "none";
+        titleEl.textContent = "Call Details";
+        subEl.textContent = "";
+
+        window._transcriptData[uuid] = transcript;
+        const transcriptLang = (lead.preferred_language || lead.language || ext.language || "").toLowerCase();
+        const isNonEnglish = transcriptLang && transcriptLang !== "en" && transcriptLang !== "english";
+
+        const tint = (key) => ({
+          "Mobile": "tint-indigo",
+          "Product": "tint-cyan",
+          "Customer Type": "tint-cyan",
+          "Address": "tint-indigo",
+          "Pincode": "tint-cyan",
+          "Language": "tint-emerald",
+        }[key] || "");
+
+        const infoFields = [
+          ["Mobile", customerMobile],
+          ["Product", lead.product_name || lead.product || ext.product || ""],
+          ["Customer Type", lead.customer_type || lead.call_type || ""],
+          ["Address", lead.address || ext.address || ""],
+          ["Pincode", lead.pincode || ext.pincode || ""],
+          ["Language", lead.preferred_language || lead.language || ext.language || ""],
+        ].filter((f) => f[1]);
+
+        const metaTint = (key) => ({
+          "Duration": "tint-indigo",
+          "Status": status === "completed" ? "tint-emerald" : (status === "failed" ? "tint-rose" : "tint-amber"),
+          "Started": "tint-cyan",
+          "Finished": "tint-cyan",
+          "Call UUID": "",
+        }[key] || "");
+
+        const callMeta = [
+          ["Duration", durStr],
+          ["Status", lead.status || "-"],
+          ["Started", fmtDateTime(lead.started_at)],
+          ["Finished", fmtDateTime(lead.finished_at)],
+          ["Call UUID", uuid],
+        ];
+
+        body.innerHTML = `
+          ${banner}
+
+          <div class="call-hero">
+            <div class="avatar-lg">${esc(initials)}</div>
+            <div class="who">
+              <h2 class="name">${esc(customerName)}</h2>
+              <p class="meta">${esc(customerMobile || "—")}${data.campaign_id ? ` · Campaign ${esc(data.campaign_id)}` : ""} · ${esc(durStr)}</p>
+            </div>
+            ${lead.status ? `<span class="status-pill ${status}">${esc(status)}</span>` : ""}
+          </div>
+
+          <section class="panel" style="margin-bottom:0.85rem;">
+            <h3 style="margin:0 0 0.7rem;">Customer Info</h3>
+            ${infoFields.length ? `
+              <div class="detail-info-grid">
+                ${infoFields.map(([k, v]) => `
+                  <div class="info-row ${tint(k)}">
+                    <div class="k">${esc(k)}</div>
+                    <div class="v">${esc(v)}</div>
+                  </div>
+                `).join("")}
+              </div>
+            ` : `<div class="empty">No customer info available.</div>`}
+          </section>
+
+          <section class="panel" style="margin-bottom:0.85rem;">
+            <h3 style="margin:0 0 0.7rem;">Call Meta</h3>
+            <div class="detail-info-grid">
+              ${callMeta.map(([k, v]) => `
+                <div class="info-row ${metaTint(k)}">
+                  <div class="k">${esc(k)}</div>
+                  <div class="v ${v === "-" || !v ? "muted" : ""}">${esc(v || "-")}</div>
+                </div>
+              `).join("")}
+              ${lead.error ? `
+                <div class="info-row tint-rose">
+                  <div class="k" style="color:#b91c1c;">Error</div>
+                  <div class="v">${esc(lead.error)}</div>
+                </div>
+              ` : ""}
+            </div>
+          </section>
+
+          ${recordingUrl ? `
+            <section class="panel recording-panel" style="margin-bottom:0.85rem;">
+              <div class="panel-head" style="margin-bottom:0.55rem;">
+                <h3 style="margin:0;display:flex;align-items:center;gap:0.5rem;">
+                  <span class="recording-pulse"></span>
+                  Call Recording
+                </h3>
+                <a href="${esc(recordingUrl)}" target="_blank" rel="noopener" class="tiny-btn" style="text-decoration:none;display:inline-flex;align-items:center;gap:0.3rem;">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Download
+                </a>
+              </div>
+              <audio controls preload="metadata" src="${esc(recordingUrl)}"></audio>
+            </section>
+          ` : ""}
+
+          <section class="panel section-transcript">
+            <div class="panel-head" style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:0.7rem;">
+                <h3 style="margin:0;display:flex;align-items:center;gap:0.4rem;">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  Transcript
+                </h3>
+                <span class="sub" style="color:var(--muted);font-size:0.82rem;">${transcript.length} message${transcript.length === 1 ? "" : "s"}</span>
+              </div>
+              ${isNonEnglish ? `<button class="btn-translate" id="btnTranslate-${uuid}" data-lang="${esc(transcriptLang)}" onclick="toggleTranslation('${esc(uuid)}', this)">Show English ▸</button>` : ""}
+            </div>
+            <div class="transcript-box" id="transcriptBox-${uuid}">
+              ${renderBubbles(transcript)}
+            </div>
+          </section>
+        `;
+      } catch (err) {
+        body.innerHTML = `<section class="panel"><div class="empty">Failed to load call: ${esc(err?.message || "network error")}</div></section>`;
+      }
+    }
+
+    // ============ View routing ============
+    let currentDetailCampaignId = null;
+    let currentDetailCallUuid = null;
+
+    function setActiveViewByName(name) {
+      const views = document.querySelectorAll(".view[data-view]");
+      for (const v of views) v.classList.toggle("active", v.getAttribute("data-view") === name);
+      const items = document.querySelectorAll(".menu-item[data-view]");
+      // For detail views, highlight the "campaigns" sidebar entry
+      const sidebarHighlight = (name === "campaign-detail" || name === "call-detail") ? "campaigns" : name;
+      for (const it of items) it.classList.toggle("active", it.getAttribute("data-view") === sidebarHighlight);
+      closeSidebar();
+    }
+
+    function applyHash() {
+      const raw = (window.location.hash || "").replace(/^#/, "").trim();
+      const parts = raw.split("/").filter(Boolean);
+      const head = parts[0] || "dashboard";
+
+      if (head === "campaign" && parts[1]) {
+        currentDetailCampaignId = decodeURIComponent(parts[1]);
+        setActiveViewByName("campaign-detail");
+        renderCampaignDetail();
+        return;
+      }
+      if (head === "call" && parts[1]) {
+        currentDetailCallUuid = decodeURIComponent(parts[1]);
+        setActiveViewByName("call-detail");
+        renderCallDetail(currentDetailCallUuid);
+        return;
+      }
+
+      setActiveViewByName(head);
+    }
+
+    function setActiveView(name) {
+      // Used by sidebar clicks — these are top-level views without params
+      const next = `#${name}`;
+      if (window.location.hash !== next) window.location.hash = next;
+      else applyHash();
+    }
+
+    function initSidebarRouting() {
+      const items = document.querySelectorAll(".menu-item[data-view]");
+      for (const it of items) {
+        it.addEventListener("click", (e) => {
+          e.preventDefault();
+          const name = it.getAttribute("data-view") || "dashboard";
+          setActiveView(name);
+        });
+      }
+
+      applyHash();
+
+      window.addEventListener("hashchange", applyHash);
+    }
+
+    // ============ Mobile sidebar drawer ============
+    function openSidebar() {
+      q("#sidebar").classList.add("open");
+      q("#sidebarOverlay").classList.add("show");
+    }
+    function closeSidebar() {
+      q("#sidebar").classList.remove("open");
+      q("#sidebarOverlay").classList.remove("show");
+    }
+
+    // ============ Data fetching ============
+    async function listCampaigns() {
+      try {
+        const r = await fetch("/api/outbound/campaigns");
+        const j = await r.json();
+        latestCampaigns = j.campaigns || [];
+        renderSummary(latestCampaigns);
+        renderCampaignsInto("#campaigns-list", latestCampaigns);
+        renderCampaignsInto("#campaigns-list-page", latestCampaigns);
+        renderTrend(latestCampaigns);
+        renderDisposition(latestCampaigns);
+        renderAgentsInto("#agentsBody", latestCampaigns);
+        renderAgentsInto("#agentsBodyPage", latestCampaigns);
+        renderActivityInto("#activityList", latestCampaigns);
+        renderActivityInto("#activityListPage", latestCampaigns);
+        renderLeadsPage(latestCampaigns);
+        renderLatestCampaign(latestCampaigns);
+        renderReports(latestCampaigns);
+
+        // Keep campaign-detail view live during auto-refresh
+        const detailView = q("#view-campaign-detail");
+        if (detailView && detailView.classList.contains("active") && currentDetailCampaignId) {
+          renderCampaignDetail();
+        }
+      } catch (err) {
+        const root = q("#campaigns-list");
+        if (root) root.innerHTML = `<div class="empty">Unable to load campaigns: ${esc(err?.message || "Unknown error")}</div>`;
+      }
+    }
+
+    async function stopCampaign(id) {
+      if (!confirm(`Stop campaign ${id}?`)) return;
+      try {
+        await fetch(`/api/outbound/campaign/${id}/stop`, { method: "POST" });
+        toast(`Stopping campaign ${id}…`, "info");
+        listCampaigns();
+      } catch (err) {
+        toast(`Failed to stop campaign: ${err?.message || "unknown"}`, "err");
+      }
+    }
+
+    // ============ Auto rate preview ============
+    // Rate is server-authoritative: rate_per_min = lead_count * 6.
+    // For CSV we can count rows in the browser and show a preview right after
+    // the user picks the file. For XLSX/XLSM, browser-side parsing would need
+    // a library — we just leave the preview blank and let the toast on submit
+    // confirm the final number.
+    q("#file").addEventListener("change", (ev) => {
+      const f = ev.target.files[0];
+      const rateEl = q("#rate");
+      if (!f) { rateEl.value = 6; return; }
+      const name = (f.name || "").toLowerCase();
+      if (name.endsWith(".csv")) {
+        // Read up to 10 MB and count non-blank data lines (minus 1 header).
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const text = String(e.target.result || "");
+          const nonBlank = text.split(/\r?\n/).filter(l => l.trim().length > 0).length;
+          const leadCount = Math.max(0, nonBlank - 1);
+          rateEl.value = Math.max(1, leadCount * 6);
+        };
+        reader.onerror = () => { rateEl.value = "—"; };
+        reader.readAsText(f.slice(0, 10 * 1024 * 1024));
+      } else {
+        // .xlsx / .xlsm — no in-browser parser; server will compute it.
+        rateEl.value = "—";
+        rateEl.title = "Will be set by server after parsing the workbook.";
+      }
+    });
+
+    // ============ Form handler ============
+    q("#upload-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const file = q("#file").files[0];
+      if (!file) {
+        toast("Please choose a leads file.", "err");
+        return;
+      }
+
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("rate_per_min", q("#rate").value);
+      fd.append("campaign_name", q("#campaign-name").value.trim());
+      fd.append("campaign_type", q("#campaign-type").value);
+
+      const startBtn = q("#startBtn");
+      startBtn.disabled = true;
+      startBtn.textContent = "Uploading...";
+      toast("Uploading and launching campaign…", "info");
+
+      try {
+        const r = await fetch("/api/outbound/campaign/upload", { method: "POST", body: fd });
+        const j = await r.json();
+        if (!r.ok) {
+          toast(`Error: ${j.detail || JSON.stringify(j)}`, "err", 6000);
+          return;
+        }
+        const label = j.campaign_name || j.campaign_id;
+        toast(`"${label}" started — ${j.lead_count} leads at ${j.rate_per_min}/min.`, "ok");
+        q("#file").value = "";
+        q("#campaign-name").value = "";
+        q("#campaign-type").value = "";
+        listCampaigns();
+      } catch (err) {
+        toast(`Error: ${err?.message || "Upload failed"}`, "err", 6000);
+      } finally {
+        startBtn.disabled = false;
+        startBtn.textContent = "Start Campaign";
+      }
+    });
+
+    // ============ Wire up controls ============
+    q("#refresh-btn").addEventListener("click", listCampaigns);
+    q("#refresh-btn-page")?.addEventListener("click", listCampaigns);
+
+    q("#newCampaignBtn").addEventListener("click", () => {
+      setActiveView("dashboard");
+      q("#uploadPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+      q("#file").focus();
+    });
+
+    q("#hamburgerBtn").addEventListener("click", openSidebar);
+    q("#sidebarOverlay").addEventListener("click", closeSidebar);
+
+    q("#campaignDetailBack").addEventListener("click", () => {
+      window.location.hash = "#campaigns";
+    });
+    q("#callDetailBack").addEventListener("click", () => {
+      if (currentDetailCampaignId) {
+        window.location.hash = `#campaign/${encodeURIComponent(currentDetailCampaignId)}`;
+      } else {
+        window.history.length > 1 ? window.history.back() : (window.location.hash = "#campaigns");
+      }
+    });
+
+    q("#searchInput").addEventListener("input", (e) => {
+      searchQuery = e.target.value || "";
+      renderCampaignsInto("#campaigns-list", latestCampaigns);
+      renderCampaignsInto("#campaigns-list-page", latestCampaigns);
+      renderLeadsPage(latestCampaigns);
+    });
+
+    document.querySelectorAll(".quick-card").forEach((card) => {
+      card.addEventListener("click", () => {
+        const action = card.getAttribute("data-action");
+        if (action === "upload" || action === "campaign") {
+          setActiveView("dashboard");
+          q("#uploadPanel").scrollIntoView({ behavior: "smooth", block: "start" });
+          q("#file").focus();
+        } else if (action === "lists") {
+          setActiveView("lists");
+        } else if (action === "reports") {
+          setActiveView("reports");
+        }
+      });
+    });
+
+    setDateRangeChip();
+    initSidebarRouting();
+    listCampaigns();
+    setInterval(listCampaigns, 2000);
+    window.stopCampaign = stopCampaign;
+  </script>
+</body>
+
+</html>

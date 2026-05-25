@@ -1,0 +1,41 @@
+global:
+  scrape_interval:     15s   # pull metrics every 15 seconds
+  evaluation_interval: 15s   # evaluate alert rules every 15 seconds
+  external_labels:
+    env: production
+    service: voice-agent
+
+# ── Alert rules ──────────────────────────────────────────────────────────────
+rule_files:
+  - "alert_rules.yml"
+
+# ── Alertmanager (configure to route to PagerDuty / Slack / email) ───────────
+# alerting:
+#   alertmanagers:
+#     - static_configs:
+#         - targets: ["alertmanager:9093"]
+
+# ── Scrape targets ───────────────────────────────────────────────────────────
+scrape_configs:
+
+  # Voice agent workers (all pods via HAProxy or direct)
+  - job_name: "voice-agent"
+    metrics_path: /metrics
+    scrape_interval: 15s
+    static_configs:
+      # Add each worker pod here; in K8s use kubernetes_sd_configs instead
+      - targets:
+          - "voice-agent:8080"
+    # In Docker Compose or K8s, use the service DNS name.
+    # For multi-pod: HAProxy exposes /metrics per pod via X-Forwarded-For routing,
+    # OR scrape each pod directly on its own IP.
+
+  # Redis (optional — requires redis_exporter sidecar)
+  # - job_name: "redis"
+  #   static_configs:
+  #     - targets: ["redis-exporter:9121"]
+
+  # Prometheus self-monitoring
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["localhost:9090"]

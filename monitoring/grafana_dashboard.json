@@ -1,0 +1,206 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_PROMETHEUS",
+      "label": "Prometheus",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "prometheus",
+      "pluginName": "Prometheus"
+    }
+  ],
+  "title": "AI Voice Agent — Operations Dashboard",
+  "uid": "voice-agent-ops",
+  "version": 1,
+  "schemaVersion": 38,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "tags": ["voice", "ai", "production"],
+  "panels": [
+
+    {
+      "id": 1,
+      "title": "Active Calls",
+      "type": "stat",
+      "gridPos": {"x": 0, "y": 0, "w": 4, "h": 4},
+      "options": {"colorMode": "background", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 300},
+              {"color": "red", "value": 450}
+            ]
+          },
+          "unit": "short"
+        }
+      },
+      "targets": [{"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "sum(voice_calls_active)", "legendFormat": "Active Calls"}]
+    },
+
+    {
+      "id": 2,
+      "title": "Calls / min",
+      "type": "stat",
+      "gridPos": {"x": 4, "y": 0, "w": 4, "h": 4},
+      "options": {"colorMode": "value", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "fieldConfig": {"defaults": {"unit": "cps", "custom": {}}},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "sum(rate(voice_calls_total[5m])) * 60", "legendFormat": "Calls/min"}]
+    },
+
+    {
+      "id": 3,
+      "title": "Resolution Rate",
+      "type": "stat",
+      "gridPos": {"x": 8, "y": 0, "w": 4, "h": 4},
+      "options": {"colorMode": "background", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percentunit",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "red", "value": null},
+              {"color": "yellow", "value": 0.65},
+              {"color": "green", "value": 0.80}
+            ]
+          }
+        }
+      },
+      "targets": [{"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "sum(rate(voice_calls_total{outcome='resolved'}[15m])) / (sum(rate(voice_calls_total[15m])) + 0.001)", "legendFormat": "Resolved %"}]
+    },
+
+    {
+      "id": 4,
+      "title": "Turn Latency p95",
+      "type": "stat",
+      "gridPos": {"x": 12, "y": 0, "w": 4, "h": 4},
+      "options": {"colorMode": "background", "reduceOptions": {"calcs": ["lastNotNull"]}},
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {"color": "green", "value": null},
+              {"color": "yellow", "value": 1.5},
+              {"color": "red", "value": 2.5}
+            ]
+          }
+        }
+      },
+      "targets": [{"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "histogram_quantile(0.95, sum(rate(voice_turn_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p95 latency"}]
+    },
+
+    {
+      "id": 5,
+      "title": "Circuit Breaker States",
+      "type": "table",
+      "gridPos": {"x": 16, "y": 0, "w": 8, "h": 4},
+      "fieldConfig": {
+        "overrides": [
+          {"matcher": {"id": "byName", "options": "Value"}, "properties": [
+            {"id": "mappings", "value": [
+              {"type": "value", "options": {"0": {"text": "CLOSED", "color": "green"}, "1": {"text": "OPEN", "color": "red"}, "2": {"text": "HALF-OPEN", "color": "yellow"}}}
+            ]},
+            {"id": "custom.displayMode", "value": "color-background"}
+          ]}
+        ]
+      },
+      "targets": [{"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "voice_circuit_breaker_state", "legendFormat": "{{provider}}", "instant": true, "format": "table"}]
+    },
+
+    {
+      "id": 10,
+      "title": "Turn Latency Distribution (p50 / p90 / p99)",
+      "type": "timeseries",
+      "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "histogram_quantile(0.50, sum(rate(voice_turn_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p50"},
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "histogram_quantile(0.90, sum(rate(voice_turn_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p90"},
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "histogram_quantile(0.99, sum(rate(voice_turn_latency_seconds_bucket[5m])) by (le))", "legendFormat": "p99"}
+      ]
+    },
+
+    {
+      "id": 11,
+      "title": "Calls by Outcome",
+      "type": "timeseries",
+      "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "cps"}},
+      "targets": [
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "sum(rate(voice_calls_total{outcome='resolved'}[5m])) * 60", "legendFormat": "Resolved"},
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "sum(rate(voice_calls_total{outcome='abandoned'}[5m])) * 60", "legendFormat": "Abandoned"},
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "sum(rate(voice_calls_total{outcome='error'}[5m])) * 60", "legendFormat": "Error"},
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "sum(rate(voice_calls_total{outcome='max_duration'}[5m])) * 60", "legendFormat": "Max Duration"}
+      ]
+    },
+
+    {
+      "id": 20,
+      "title": "LLM Latency by Model Tier (p95)",
+      "type": "timeseries",
+      "gridPos": {"x": 0, "y": 12, "w": 8, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "histogram_quantile(0.95, sum(rate(voice_llm_latency_seconds_bucket{model_tier='fast'}[5m])) by (le))", "legendFormat": "8b (fast)"},
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "histogram_quantile(0.95, sum(rate(voice_llm_latency_seconds_bucket{model_tier='smart'}[5m])) by (le))", "legendFormat": "70b (smart)"}
+      ]
+    },
+
+    {
+      "id": 21,
+      "title": "TTS Latency — Cache Hit vs Miss (p95)",
+      "type": "timeseries",
+      "gridPos": {"x": 8, "y": 12, "w": 8, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "s"}},
+      "targets": [
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "histogram_quantile(0.95, sum(rate(voice_tts_latency_seconds_bucket{cache_hit='true'}[5m])) by (le))", "legendFormat": "Cache Hit"},
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "histogram_quantile(0.95, sum(rate(voice_tts_latency_seconds_bucket{cache_hit='false'}[5m])) by (le))", "legendFormat": "Cache Miss (API)"}
+      ]
+    },
+
+    {
+      "id": 22,
+      "title": "Cache Hit Rates by Tier",
+      "type": "timeseries",
+      "gridPos": {"x": 16, "y": 12, "w": 8, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "percentunit"}},
+      "targets": [
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "rate(voice_cache_hits_total{tier='tts'}[5m]) / (rate(voice_cache_hits_total{tier='tts'}[5m]) + rate(voice_cache_misses_total{tier='tts'}[5m]) + 0.001)", "legendFormat": "TTS cache hit%"},
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "rate(voice_cache_hits_total{tier='llm'}[5m]) / (rate(voice_cache_hits_total{tier='llm'}[5m]) + rate(voice_cache_misses_total{tier='llm'}[5m]) + 0.001)", "legendFormat": "LLM cache hit%"},
+        {"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "rate(voice_cache_hits_total{tier='rag'}[5m]) / (rate(voice_cache_hits_total{tier='rag'}[5m]) + rate(voice_cache_misses_total{tier='rag'}[5m]) + 0.001)", "legendFormat": "RAG cache hit%"}
+      ]
+    },
+
+    {
+      "id": 30,
+      "title": "Language Distribution (calls)",
+      "type": "piechart",
+      "gridPos": {"x": 0, "y": 20, "w": 8, "h": 8},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "sum(rate(voice_calls_by_language_total[1h])) by (language)", "legendFormat": "{{language}}"}]
+    },
+
+    {
+      "id": 31,
+      "title": "Language Switches / min",
+      "type": "timeseries",
+      "gridPos": {"x": 8, "y": 20, "w": 8, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "cps"}},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "sum(rate(voice_language_switches_total[5m])) by (from_lang, to_lang) * 60", "legendFormat": "{{from_lang}} → {{to_lang}}"}]
+    },
+
+    {
+      "id": 32,
+      "title": "Barge-ins / min",
+      "type": "timeseries",
+      "gridPos": {"x": 16, "y": 20, "w": 8, "h": 8},
+      "fieldConfig": {"defaults": {"unit": "cps"}},
+      "targets": [{"datasource": {"type": "prometheus", "uid": "${DS_PROMETHEUS}"}, "expr": "rate(voice_barge_ins_total[5m]) * 60", "legendFormat": "Barge-ins/min"}]
+    }
+
+  ]
+}

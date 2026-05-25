@@ -1,0 +1,118 @@
+groups:
+  - name: voice_agent_sla
+    interval: 30s
+    rules:
+
+      # ── Latency SLA ──────────────────────────────────────────────────────
+      - alert: TurnLatencyP95High
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(voice_turn_latency_seconds_bucket[5m])) by (le, agent)
+          ) > 2.0
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "p95 turn latency > 2.0s (agent={{ $labels.agent }})"
+          description: |
+            End-to-end turn latency p95 is {{ $value | humanizeDuration }}.
+            SLA target is 2.0s. Check LLM response time and TTS latency.
+          runbook: "Check /health/circuit-breakers and LLM provider dashboards."
+
+      - alert: TurnLatencyP95Critical
+        expr: |
+          histogram_quantile(0.95,
+            sum(rate(voice_turn_latency_seconds_bucket[5m])) by (le, agent)
+          ) > 3.5
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "p95 turn latency > 3.5s — SLA breach (agent={{ $labels.agent }})"
+          description: |
+            Turn latency p95 is {{ $value | humanizeDuration }}. Immediate action required.
+          runbook: "Check circuit breakers, Groq status, ElevenLabs status."
+
+      # ── Circuit breakers ──────────────────────────────────────────────────
+      - alert: CircuitBreakerOpen
+        expr: voice_circuit_breaker_state == 1
+        for: 0m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Circuit breaker OPEN: {{ $labels.provider }}"
+          description: |
+            Provider {{ $labels.provider }} circuit breaker is OPEN.
+            All calls will use fallback or fail fast until recovery.
+          runbook: "Check provider status. Use POST /admin/circuit-breakers/{{ $labels.provider }}/reset after manual verification."
+
+      # ── Error rates ───────────────────────────────────────────────────────
+      - alert: HighLLMErrorRate
+        expr: |
+          rate(voice_llm_errors_total[5m]) /
+          (rate(voice_turns_total[5m]) + 0.001) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "LLM error rate > 5%"
+          description: "{{ $value | humanizePercentage }} of turns are failing at LLM. Check Groq API status."
+
+      - alert: HighTTSErrorRate
+        expr: |
+          rate(voice_tts_errors_total[5m]) /
+          (rate(voice_turns_total[5m]) + 0.001) > 0.05
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "TTS error rate > 5% (provider={{ $labels.provider }})"
+          description: "TTS provider {{ $labels.provider }} is failing. Fallback should be active."
+
+      # ── Capacity ──────────────────────────────────────────────────────────
+      - alert: HighConcurrentCalls
+        expr: voice_calls_active > 400
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Active calls > 400 per worker (approaching limit of 500)"
+          description: |
+            {{ $value }} concurrent calls active. Queue may start rejecting calls above 500.
+            Consider adding worker pods.
+
+      - alert: CallsBeingRejected
+        expr: rate(voice_calls_rejected_total[5m]) > 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Calls being rejected — concurrency queue full"
+          description: |
+            {{ $value | humanize }} calls/s being rejected. Scale up worker pods immediately.
+
+      # ── Resolution rate ───────────────────────────────────────────────────
+      - alert: LowResolutionRate
+        expr: |
+          rate(voice_calls_total{outcome="resolved"}[15m]) /
+          (rate(voice_calls_total[15m]) + 0.001) < 0.60
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Call resolution rate < 60%"
+          description: |
+            Only {{ $value | humanizePercentage }} of calls are resolving successfully.
+            Check agent handoff logic and LLM quality.
+
+      # ── Cache health ──────────────────────────────────────────────────────
+      - alert: LowTTSCacheHitRate
+        expr: |
+          rate(voice_cache_hits_total{tier="tts"}[15m]) /
+          (rate(voice_cache_hits_total{tier="tts"}[15m]) + rate(voice_cache_misses_total{tier="tts"}[15m]) + 0.001) < 0.10
+        for: 30m
+        labels:
+          severity: info
+        annotations:
+          summary: "TTS cache hit rate < 10% — cache may be cold or Redis unavailable"
+          description: "Low TTS cache hits reduce latency savings. Check Redis connectivity."
