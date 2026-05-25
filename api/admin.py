@@ -176,7 +176,7 @@ async def originate_lead(lead: Lead) -> dict:
     try:
         resp = await ami.originate(
             channel=channel,
-            context="outbound-ai-hindalco",
+            context="outbound-ai-jcb",
             extension="s",
             priority=1,
             variables={
