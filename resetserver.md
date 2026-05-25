@@ -18,4 +18,8 @@
   cd /Users/ankitpanwar/Documents/github/python_aivoice_agent
  
  source .venv/bin/activate                                                                                                                                                                                    
- python main.py      
+ python main.py   
+
+ 7. Injest knowledge_base: 
+ 
+    python -m providers.rag.ingest --collection jcb_nps_outbound_kb --files knowledge_bases/jcb_nps_outbound_kb.md 

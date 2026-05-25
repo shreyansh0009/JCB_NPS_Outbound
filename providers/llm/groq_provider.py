@@ -103,10 +103,30 @@ class GroqLLM(BaseLLM):
         Cap non-English at 2x base (hard cap 400): a structured B2B question in
         Hindi can be 30+ words = 60-150 tokens; the old 250 cap cut replies mid-sentence.
         English stays at base (~100 words, ~20s speech max — enough for any single turn).
+
+        Detection: Devanagari/Indian-script chars in system prompt (from persona.md
+        Hindi examples), or an Indian-script assistant prefill injected for the turn.
         """
+        import re
+        _INDIAN_SCRIPT = re.compile(
+            r'[ऀ-ॿ'   # Devanagari (Hindi, Marathi)
+            r'ঀ-৿'   # Bengali
+            r'਀-੿'   # Gurmukhi (Punjabi)
+            r'஀-௿'   # Tamil
+            r'ఀ-౿'   # Telugu
+            r'ಀ-೿'   # Kannada
+            r'ഀ-ൿ]'  # Malayalam
+        )
         system = next((m["content"] for m in messages if m["role"] == "system"), "")
-        if "LANGUAGE LOCK" in system and "English" not in system.split("CURRENT LANGUAGE:")[-1][:30]:
-            return min(self.max_tokens * 2, 400)  # non-English: 2x base, hard cap 400 tokens
+        # Devanagari in system prompt (persona.md always has Hindi examples)
+        if _INDIAN_SCRIPT.search(system):
+            return min(self.max_tokens * 2, 400)
+        # Indian-script assistant prefill injected for this turn
+        if any(
+            m.get("role") == "assistant" and _INDIAN_SCRIPT.search(m.get("content", ""))
+            for m in messages
+        ):
+            return min(self.max_tokens * 2, 400)
         return self.max_tokens  # English: base
 
     async def chat(self, messages: list[dict]) -> str:
