@@ -1,0 +1,61 @@
+{
+  "name": "JCB — Mission Happiness Outbound NPS Survey Squad",
+  "description": "Outbound Mission Happiness feedback caller for JCB. Naina calls B2B customers to collect NPS feedback on their overall experience with JCB equipment — covering machine quality, order accuracy, delivery, and dealer communication. Supports Hindi and English with immediate language mirroring.",
+  "leader": "hello",
+  "agents": [
+    {
+      "name": "hello",
+      "class": "HelloAgent",
+      "description": "Naina introduces herself from JCB's Mission Happiness Team, confirms the customer's identity, checks availability, and routes to the screener.",
+      "can_handoff_to": [
+        "screener",
+        "closer"
+      ]
+    },
+    {
+      "name": "screener",
+      "class": "ScreenerAgent",
+      "description": "Explains the purpose of the JCB Mission Happiness feedback call, obtains consent to proceed, and routes to service or closes if the customer declines.",
+      "can_handoff_to": [
+        "service",
+        "closer"
+      ]
+    },
+    {
+      "name": "service",
+      "class": "ServiceAgent",
+      "description": "Administers the core feedback conversation: open experience question, complaint probe (Branch A/B/C), four structured B2B questions (machine quality, order accuracy, delivery, documentation), single overall rating (1-10) with mandatory read-back, and post-rating acknowledgement by score band.",
+      "can_handoff_to": [
+        "scheduler",
+        "sales",
+        "closer"
+      ],
+      "rag_collection": "jcb_nps_outbound_kb"
+    },
+    {
+      "name": "sales",
+      "class": "SalesAgent",
+      "description": "Governs all edge cases, guardrails, out-of-scope requests, hostile callers, and prohibited actions. Maintains feedback integrity — no selling or promotions. Can route back to service, scheduler, or close the call.",
+      "can_handoff_to": [
+        "service",
+        "scheduler",
+        "closer"
+      ],
+      "rag_collection": "jcb_nps_outbound_kb"
+    },
+    {
+      "name": "scheduler",
+      "class": "SchedulerAgent",
+      "description": "Runs escalation check (Step 7, only for complaints or ratings 1-7) — offers a follow-up callback from the JCB team. Routes to closer after escalation check is complete or skipped.",
+      "can_handoff_to": [
+        "closer"
+      ]
+    },
+    {
+      "name": "closer",
+      "class": "CloserAgent",
+      "description": "Delivers the closing line exactly once based on call outcome (completed, declined, or wrong number), then disconnects immediately. No fillers or follow-up after [END_CALL].",
+      "can_handoff_to": []
+    }
+  ]
+}
