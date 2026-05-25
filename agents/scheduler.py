@@ -119,6 +119,8 @@ class SchedulerAgent(BaseAgent):
         history   = session.history
         score     = session.get("nps_rating") or _extract_nps_score(transcript, history)
         complaint = _has_complaint(session, history)
+        if score is not None and not session.get("nps_rating"):
+            session.set("nps_rating", score)
 
         if score is not None and score >= 8 and not complaint:
             return AgentResponse(
@@ -146,6 +148,8 @@ class SchedulerAgent(BaseAgent):
         history   = session.history
         score     = session.get("nps_rating") or _extract_nps_score(transcript, history)
         complaint = _has_complaint(session, history)
+        if score is not None and not session.get("nps_rating"):
+            session.set("nps_rating", score)
 
         if score is not None and score >= 8 and not complaint:
             yield None, AgentResponse(

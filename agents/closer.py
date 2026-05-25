@@ -41,28 +41,36 @@ def _is_outbound(session: CallSession) -> bool:
     )
 
 
+_OUTBOUND_CLOSING = {
+    "hi": "आपके समय और बहुमूल्य feedback के लिए बहुत-बहुत धन्यवाद। आपका दिन शुभ हो।",
+    "en": "Thank you so very much for your time and your valuable feedback. Have a wonderful day.",
+}
+
+
 class CloserAgent(BaseAgent):
     name = "closer"
     can_handoff_to = ["screener"]
 
     async def stream_handle(self, transcript: str, session: CallSession):
-        """
-        Override stream_handle so outbound calls always end after the closer speaks,
-        even when the LLM omits [END_CALL] (e.g. due to token cutoff).
-        Without this, the call stays open and any user reply triggers a second
-        closer turn that overlaps with still-draining TTS → simultaneous echo.
-        """
-        outbound = _is_outbound(session)
+        if _is_outbound(session):
+            # Deterministic outbound path: no LLM call, no hallucination possible.
+            # The closing line is fixed regardless of conversation history.
+            lang = session.get("language", "hi") or "hi"
+            closing = _OUTBOUND_CLOSING.get(lang, _OUTBOUND_CLOSING["hi"])
+            yield closing, None
+            yield None, AgentResponse(text=closing, end_call=True)
+            return
+
         async for sentence, resp in super().stream_handle(transcript, session):
-            if resp is not None and outbound and not resp.end_call:
-                resp = AgentResponse(
-                    text=resp.text,
-                    handoff=resp.handoff,
-                    end_call=True,
-                )
             yield sentence, resp
 
     async def handle(self, transcript: str, session: CallSession) -> AgentResponse:
+        # Outbound: deterministic — no LLM call needed.
+        if _is_outbound(session):
+            lang = session.get("language", "hi") or "hi"
+            closing = _OUTBOUND_CLOSING.get(lang, _OUTBOUND_CLOSING["hi"])
+            return AgentResponse(text=closing, end_call=True)
+
         language = session.get("language", session.current_language)
         reply = await self._chat(session, transcript)
         handoff = self._parse_handoff(reply)
@@ -75,11 +83,6 @@ class CloserAgent(BaseAgent):
 
         # Remove any Urdu/Persian words the LLM may have generated
         clean_reply = _sanitize_urdu(clean_reply)
-
-        # Outbound: closer is the terminal agent — always end after speaking.
-        # Never wait for caller input; doing so causes the closing message to loop.
-        if session.get("direction") == "outbound" or session.get("support_domain") == "outbound":
-            return AgentResponse(text=clean_reply or reply, end_call=True)
 
         # Inbound: end only when caller signals done or LLM emits [END_CALL]
         has_end_call = "[END_CALL]" in reply

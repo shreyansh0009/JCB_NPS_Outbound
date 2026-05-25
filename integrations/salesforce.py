@@ -142,13 +142,41 @@ async def create_case(
         return None
 
     try:
-        name = session.get("name", "Guest")
-        mobile = session.get("mobile", "")
-        intent = session.get("intent", "")
+        name    = session.get("name") or session.get("customer_name") or "Guest"
+        mobile  = session.get("mobile") or session.get("phone_number") or ""
+        intent  = session.get("intent", "")
         address = session.get("address", "")
-        pincode = _extract_pincode(address)
+        # Use pincode from session directly first; fall back to regex extraction
+        pincode = (
+            session.get("pincode")
+            or session.get("parsed_pincode")
+            or _extract_pincode(address)
+            or ""
+        )
 
-        case_type = _classify_case_type(intent)
+        # Build a human-readable issue description for NPS calls
+        nps_rating     = session.get("nps_rating")
+        product_name   = session.get("product_name") or session.get("product_category") or ""
+        customer_type  = session.get("customer_type") or ""
+        purchase_date  = session.get("purchase_date") or ""
+        reported_issue = session.get("reported_issue") or intent or ""
+
+        if nps_rating is not None:
+            issue_parts = [f"NPS Rating: {nps_rating}/10"]
+            if product_name:
+                issue_parts.append(f"Product: {product_name}")
+            if customer_type:
+                issue_parts.append(f"Customer Type: {customer_type}")
+            if purchase_date:
+                issue_parts.append(f"Purchase Date: {purchase_date}")
+            if reported_issue:
+                issue_parts.append(f"Feedback: {reported_issue}")
+            issue_desc = " | ".join(issue_parts)
+            case_type  = "NPS Feedback" if nps_rating >= 8 else "NPS Feedback - Low Score"
+        else:
+            issue_desc = reported_issue or "NPS Feedback Call"
+            case_type  = _classify_case_type(reported_issue)
+
         duration_str = _format_duration(duration_seconds)
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -158,7 +186,7 @@ async def create_case(
             "user_name": name,
             "Mobile": mobile,
             "Pincode": pincode,
-            "issuedesc": intent or "Service Appointment",
+            "issuedesc": issue_desc,
             "fulladdress": address,
             "email": " ",
             "preferred_date": now_str,
@@ -167,8 +195,13 @@ async def create_case(
             "conversationDueration": duration_str,
             "sentiment": "Neutral",
             "Origin": "Phone",
-            "Priority": "High",
+            "Priority": "Medium" if (nps_rating or 0) >= 8 else "High",
         }
+
+        logger.info(
+            f"Salesforce case payload: name={name!r} mobile={mobile!r} "
+            f"pincode={pincode!r} nps={nps_rating} case_type={case_type!r}"
+        )
 
         endpoint = f"{settings.sf_instance_url}/services/apexrest/caseService"
         token = await _get_access_token(settings)
@@ -196,11 +229,20 @@ async def create_case(
                     },
                 )
 
+            if resp.status_code != 200:
+                logger.error(
+                    f"Salesforce HTTP {resp.status_code} — body: {resp.text[:500]}"
+                )
             resp.raise_for_status()
             result = resp.json()
 
         case_number = result.get("caseNumber", "UNKNOWN")
-        logger.info(f"Salesforce case created: {case_number} ({case_type})")
+        if case_number is None:
+            logger.warning(
+                f"Salesforce returned caseNumber=null — full response: {result}"
+            )
+        else:
+            logger.info(f"Salesforce case created: {case_number} ({case_type})")
         return result
 
     except Exception:

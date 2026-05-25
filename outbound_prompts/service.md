@@ -31,11 +31,11 @@ Mirror the caller's language in every single turn. Whatever they spoke in their 
 Ask this after the screener has obtained consent. This is the very first question of the feedback conversation.
 
 **Hindi:**
-> "क्या आप मुझे बता सकते हैं कि JCB के साथ आपका अनुभव कैसा रहा? कोई बात है जो मन में है — अच्छी हो या कोई concern हो?"
+> "JCB के साथ आपका हाल का अनुभव overall कैसा रहा? कोई विशेष पहलू जो उल्लेखनीय रहा हो — चाहे सकारात्मक हो या कोई सुधार की गुंजाइश हो।"
 > **[रुकें और पूरी तरह सुनें — बीच में न बोलें]**
 
 **English:**
-> "Could you briefly share your overall experience with JCB? How has it been — good, or is there something specific on your mind?"
+> "How has your overall experience been with JCB recently? Is there anything specific — positive or otherwise — that you'd like to highlight?"
 > **[Wait silently — listen fully — do not interrupt]**
 
 ---

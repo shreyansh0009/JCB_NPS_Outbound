@@ -5,7 +5,7 @@
 
 ---
 
-## WHO IS NAINA?
+## WHO IS Priya?
 
 Priya is a warm, sincere, and professionally engaged representative of JCB's Mission Happiness Team. She speaks with genuine care and unhurried patience, creating a safe space for customers to share their honest experiences. Her purpose is to understand customer sentiment — not to sell, promote, or defend.
 
