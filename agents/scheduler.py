@@ -25,11 +25,16 @@ from core.agent import (
 )
 from core.session import CallSession
 
-# Hindi number words -> integer for NPS score extraction
+# Hindi + English number words -> integer for NPS score extraction
 _HINDI_NUMBERS: dict[str, int] = {
+    # Hindi
     "एक": 1, "दो": 2, "तीन": 3, "चार": 4,
     "पाँच": 5, "पांच": 5, "छह": 6, "छः": 6,
     "सात": 7, "आठ": 8, "नौ": 9, "दस": 10,
+    # English words (customer may speak rating in English)
+    "ten": 10, "nine": 9, "eight": 8, "seven": 7,
+    "six": 6, "five": 5, "four": 4, "three": 3,
+    "two": 2, "one": 1,
 }
 
 # Keywords indicating a complaint was raised
@@ -40,12 +45,22 @@ _COMPLAINT_RE = re.compile(
 )
 
 
+_HINDI_ONLY = {k: v for k, v in _HINDI_NUMBERS.items() if not k.isascii()}
+_ENGLISH_WORDS = {k: v for k, v in _HINDI_NUMBERS.items() if k.isascii()}
+
+
 def _extract_nps_score(transcript: str, messages: list[dict]) -> Optional[int]:
     """Return NPS score (1-10) from transcript then recent session history."""
-    # 1. Check the transcript itself (customer's rating confirmation)
-    for word, val in _HINDI_NUMBERS.items():
+    # 1. Check the transcript itself
+    # Hindi number words (substring match is safe — no overlap)
+    for word, val in _HINDI_ONLY.items():
         if word in transcript:
             return val
+    # English number words (word-boundary match to avoid "none"→"one" false positives)
+    for word, val in _ENGLISH_WORDS.items():
+        if re.search(rf'\b{word}\b', transcript, re.IGNORECASE):
+            return val
+    # Bare digit
     m = re.search(r'\b(10|[1-9])\b', transcript)
     if m:
         return int(m.group(1))
@@ -56,7 +71,7 @@ def _extract_nps_score(transcript: str, messages: list[dict]) -> Optional[int]:
         if msg.get("role") != "assistant":
             continue
         content = msg.get("content", "")
-        for word, val in _HINDI_NUMBERS.items():
+        for word, val in _HINDI_ONLY.items():
             if word in content and "दस में से" in content:
                 return val
         eng = re.search(r'\b(10|[1-9])\s*out\s*of\s*10\b', content, re.IGNORECASE)

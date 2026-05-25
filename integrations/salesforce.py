@@ -180,6 +180,8 @@ async def create_case(
         duration_str = _format_duration(duration_seconds)
         now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+        duration_minutes = max(1, round(duration_seconds / 60))
+
         payload = {
             "Subject": case_type,
             "operation": "insert",
@@ -192,6 +194,7 @@ async def create_case(
             "preferred_date": now_str,
             "recording_link": session.get("recording_url", ""),
             "transcript": transcript_text,
+            "DurationInMinutes": duration_minutes,
             "conversationDueration": duration_str,
             "sentiment": "Neutral",
             "Origin": "Phone",
