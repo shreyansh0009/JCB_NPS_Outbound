@@ -320,21 +320,12 @@ async def main():
     except Exception as e:
         logger.warning(f"OTel init skipped ({e})")
 
-    # TenantManager singleton (DID → tenant config). Used by rate limiter +
-    # future per-tenant routing.
+    # Per-tenant rate limiting (token bucket). Single-tenant; uses global defaults.
     try:
-        from core.tenant_manager import TenantManager
-        TenantManager.set_instance(TenantManager("config/tenants.json"))
-    except Exception as e:
-        logger.warning(f"TenantManager init skipped ({e})")
-
-    # Per-tenant rate limiting (token bucket). Reads optional rate_limit blocks
-    # from config/tenants.json and falls back to global defaults.
-    try:
-        from core.rate_limiter import TenantRateLimiter, load_tenant_overrides_from_json
+        from core.rate_limiter import TenantRateLimiter
         TenantRateLimiter.configure(
             defaults=(settings.rate_limit_capacity, settings.rate_limit_rate_per_sec),
-            per_tenant=load_tenant_overrides_from_json("config/tenants.json"),
+            per_tenant={},
         )
     except Exception as e:
         logger.warning(f"TenantRateLimiter init skipped ({e})")

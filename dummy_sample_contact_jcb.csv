@@ -1,0 +1,11 @@
+customer_name,phone_number,customer_type,product_category,product_name,purchase_date,address,pincode,preferred_language,dealer_name,machine_serial_number
+Rajesh Kumar,9876543210,contractor,Backhoe Loaders,JCB 3DX,2024-08-15,Sector 45 Gurugram,122003,hindi,ABC Equipment Pvt Ltd,3DX-2024-00781
+Suresh Patil,9823456710,fleet_owner,Backhoe Loaders,JCB 2DX,2024-09-02,Hadapsar Pune,411028,marathi,Pune Machinery Works,2DX-2024-00342
+Arun Nair,9745123890,end_user,Excavators,JCB 140,2024-07-20,Edapally Kochi,682024,malayalam,Kerala JCB Sales,140-2024-00215
+Venkatesh Reddy,9618234570,contractor,Compactors,JCB VMT 860,2024-10-11,Kukatpally Hyderabad,500072,telugu,Hyderabad Infra Equipment,VMT-2024-00089
+Manpreet Singh,9501234567,dealer,Backhoe Loaders,JCB 4CX,2024-06-30,Ludhiana Punjab,141001,punjabi,Punjab Heavy Machines,4CX-2024-00456
+Dinesh Sharma,9412567830,contractor,Wheel Loaders,JCB 427,2024-11-05,Jaipur Rajasthan,302001,hindi,Rajasthan Equipment Hub,427-2024-00123
+Priya Ganesh,9345678901,government,Excavators,JCB 215,2024-05-18,Anna Nagar Chennai,600040,tamil,Tamil Nadu Infra Supplies,215-2024-00678
+Amit Verma,9267890123,fleet_owner,Backhoe Loaders,JCB 3DX Super,2024-12-01,Hazratganj Lucknow,226001,hindi,UP Construction Equipments,3DXS-2024-00934
+Mohammed Iqbal,9156789012,contractor,Telehandlers,JCB 530-70,2024-09-25,Bandra West Mumbai,400050,hindi,Mumbai Equipment Solutions,530-2024-00267
+Bikash Das,9034567891,end_user,Backhoe Loaders,JCB 2DX,2024-10-30,Salt Lake Kolkata,700091,bengali,Bengal Machinery Traders,2DX-2024-00501

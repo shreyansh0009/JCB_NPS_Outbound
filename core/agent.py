@@ -459,21 +459,33 @@ class BaseAgent(ABC):
         turn_lang_name = _LANG_NAME.get(turn_lang, "English")
 
         if lang_code == "hi":
-            # Hindi callers very commonly mix Hindi and English (Hinglish).
-            # A hard "respond only in Hindi" lock fights against this and causes
-            # the agent to reply in Hindi even when the caller is fully in English.
-            # Use a soft mirror rule instead: follow what the caller just said.
-            system_content += (
-                f"\n\nLANGUAGE RULE (soft mirror — not a hard lock):\n"
-                f"The caller's last message was in {turn_lang_name}. "
-                f"Mirror their language naturally:\n"
-                f"- If they spoke Hindi → respond in Hindi.\n"
-                f"- If they spoke English → respond in English.\n"
-                f"- If they mixed Hindi and English (Hinglish) → match their mix.\n"
-                f"- A single word like 'yes', 'okay', 'hello' by a Hindi speaker "
-                f"does NOT mean they switched to English — stay in Hindi unless "
-                f"their full sentence is in English."
-            )
+            # When the caller's turn contains Devanagari script the language is
+            # unambiguous — enforce a hard lock so the LLM cannot drift to English.
+            # Only fall back to the soft mirror for Roman-script turns (Hinglish /
+            # English) where the intent is genuinely ambiguous.
+            from providers.language.detector import is_script_based as _is_script_based
+            if _is_script_based(user_message):
+                system_content += (
+                    f"\n\nLANGUAGE RULE (HARD — NO EXCEPTIONS):\n"
+                    f"The caller just spoke in Hindi (Devanagari script detected). "
+                    f"You MUST respond entirely in Hindi. "
+                    f"Do not write a single English sentence or switch to English. "
+                    f"English words the caller used (like 'okay', 'yes') are Hinglish — "
+                    f"they do NOT indicate an English preference."
+                )
+            else:
+                # Roman-script turn: may be Hinglish or English — use soft mirror.
+                system_content += (
+                    f"\n\nLANGUAGE RULE (mirror the caller):\n"
+                    f"The caller's last message was in {turn_lang_name}. "
+                    f"Mirror their language naturally:\n"
+                    f"- If they spoke Hindi → respond in Hindi.\n"
+                    f"- If they spoke English → respond in English.\n"
+                    f"- If they mixed Hindi and English (Hinglish) → match their mix.\n"
+                    f"- A single word like 'yes', 'okay', 'hello' by a Hindi speaker "
+                    f"does NOT mean they switched to English — stay in Hindi unless "
+                    f"their full sentence is in English."
+                )
         elif lang_code not in ("en", ""):
             # Regional language (Tamil, Telugu, Bengali, etc.): callers
             # occasionally use English technical terms but the base language

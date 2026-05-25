@@ -30,7 +30,6 @@ from core import outbound_call_store
 from core.ami import get_ami
 from core.outbound_campaign import Lead, get_manager, parse_file
 from core.rate_limiter import TenantRateLimiter
-from core.tenant_manager import TenantManager
 from core.trunk_pool import TrunkPool, get_pool as get_trunk_pool
 
 logger = logging.getLogger(__name__)
@@ -142,12 +141,7 @@ async def originate_lead(lead: Lead) -> dict:
     if not settings.outbound_enabled:
         raise RuntimeError("outbound calling is disabled (set OUTBOUND_ENABLED=true)")
 
-    # Per-tenant rate gate. Map DID → tenant_id via TenantManager; if no tenant
-    # configured, bucket per outbound caller-ID instead so noisy campaigns
-    # can't burn shared upstream quotas.
-    tm = TenantManager.get()
-    tenant_cfg = tm.lookup(settings.outbound_caller_id) if tm else None
-    tenant_id = (tenant_cfg.tenant_id if tenant_cfg else None) or settings.outbound_caller_id or "default"
+    tenant_id = settings.outbound_caller_id or "default"
     if not TenantRateLimiter.try_acquire(tenant_id):
         raise RuntimeError(f"rate limited (tenant={tenant_id})")
 
