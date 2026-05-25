@@ -375,8 +375,46 @@ class BaseAgent(ABC):
         Build the full messages list (system + history + user) for an LLM call.
         Pure helper — no side effects, no I/O. Shared by _chat() and stream_handle().
         """
+        # ── Compute language rule FIRST so it can be prepended before the prompt ──
+        # Small models (llama-3.1-8b) attend heavily to early tokens; appending the
+        # rule after 4000-token prompts means it gets drowned out. Prepending it
+        # gives it maximum weight.
+        from providers.language.detector import (
+            detect_language as _detect_turn_lang,
+            is_script_based as _is_script_based,
+        )
+        lang_code      = session.get("language", "hi")
+        lang_name      = _LANG_NAME.get(lang_code, "English")
+        turn_lang      = _detect_turn_lang(user_message)
+        turn_lang_name = _LANG_NAME.get(turn_lang, "English")
+        _devanagari_turn = lang_code == "hi" and _is_script_based(user_message)
+
+        if lang_code == "hi":
+            if _devanagari_turn:
+                _lang_rule = (
+                    "⚠ LANGUAGE RULE — OVERRIDE EVERYTHING ELSE — NO EXCEPTIONS:\n"
+                    "The caller's last message contained Devanagari script (Hindi). "
+                    "Your ENTIRE response MUST be in Hindi. "
+                    "Do NOT write even one English word or sentence. "
+                    "Words like 'okay' or 'yes' from the caller are Hinglish — they do NOT mean the caller wants English.\n\n"
+                )
+            else:
+                _lang_rule = (
+                    f"LANGUAGE RULE: The caller's last message was in {turn_lang_name}. "
+                    f"Mirror their language — Hindi→Hindi, English→English, Hinglish→Hinglish. "
+                    f"A single word like 'yes'/'okay' does NOT switch the language away from Hindi.\n\n"
+                )
+        elif lang_code not in ("en", ""):
+            _lang_rule = (
+                f"LANGUAGE RULE: Respond in {lang_name}. "
+                f"English technical terms the caller uses are fine, "
+                f"but keep your response in {lang_name} overall.\n\n"
+            )
+        else:
+            _lang_rule = ""
+
         # ── Inject current IST date so agent resolves relative terms correctly ──
-        system_content = _build_date_context() + "\n" + self.system_prompt
+        system_content = _build_date_context() + "\n" + _lang_rule + self.system_prompt
  
         if rag_context:
             system_content += (
@@ -448,54 +486,7 @@ class BaseAgent(ABC):
                 f"{_EMOTION_GUIDANCE[emotion]}"
             )
 
-        lang_code = session.get("language", "hi")  # Deepgram STT language
-        lang_name = _LANG_NAME.get(lang_code, "English")
-
-        # Detect the language of the current caller turn so we can give the
-        # LLM an accurate mirror hint — the session lang_code only switches on
-        # explicit requests (for Deepgram), so it lags behind the actual turn.
-        from providers.language.detector import detect_language as _detect_turn_lang
-        turn_lang      = _detect_turn_lang(user_message)
-        turn_lang_name = _LANG_NAME.get(turn_lang, "English")
-
-        if lang_code == "hi":
-            # When the caller's turn contains Devanagari script the language is
-            # unambiguous — enforce a hard lock so the LLM cannot drift to English.
-            # Only fall back to the soft mirror for Roman-script turns (Hinglish /
-            # English) where the intent is genuinely ambiguous.
-            from providers.language.detector import is_script_based as _is_script_based
-            if _is_script_based(user_message):
-                system_content += (
-                    f"\n\nLANGUAGE RULE (HARD — NO EXCEPTIONS):\n"
-                    f"The caller just spoke in Hindi (Devanagari script detected). "
-                    f"You MUST respond entirely in Hindi. "
-                    f"Do not write a single English sentence or switch to English. "
-                    f"English words the caller used (like 'okay', 'yes') are Hinglish — "
-                    f"they do NOT indicate an English preference."
-                )
-            else:
-                # Roman-script turn: may be Hinglish or English — use soft mirror.
-                system_content += (
-                    f"\n\nLANGUAGE RULE (mirror the caller):\n"
-                    f"The caller's last message was in {turn_lang_name}. "
-                    f"Mirror their language naturally:\n"
-                    f"- If they spoke Hindi → respond in Hindi.\n"
-                    f"- If they spoke English → respond in English.\n"
-                    f"- If they mixed Hindi and English (Hinglish) → match their mix.\n"
-                    f"- A single word like 'yes', 'okay', 'hello' by a Hindi speaker "
-                    f"does NOT mean they switched to English — stay in Hindi unless "
-                    f"their full sentence is in English."
-                )
-        elif lang_code not in ("en", ""):
-            # Regional language (Tamil, Telugu, Bengali, etc.): callers
-            # occasionally use English technical terms but the base language
-            # is clear. Keep a firm but not extreme instruction.
-            system_content += (
-                f"\n\nLANGUAGE RULE: The caller uses {lang_name}. "
-                f"Respond primarily in {lang_name}. "
-                f"English technical terms the caller uses are fine to echo back, "
-                f"but keep your response in {lang_name} overall."
-            )
+        # lang_code / turn_lang / _devanagari_turn computed above (before system_content).
  
         clean_history = [
             msg for msg in session.history
@@ -536,14 +527,17 @@ class BaseAgent(ABC):
         messages.extend(history_messages)
         messages.append({"role": "user", "content": user_message})
 
-        # For non-Hindi Indian scripts, add an assistant prefill starter so the
-        # LLM begins in the correct character set (Tamil, Telugu, Bengali etc.).
-        # Skipped for Hindi because Hinglish mixing is intentional and the soft
-        # mirror rule above handles it. Skipped for English (unnecessary).
-        if lang_code not in ("hi", "en", "") and lang_code in _LANG_PREFILL:
+        # Add an assistant prefill starter to force the LLM to begin in the right
+        # script. For Devanagari Hindi turns this locks the first token to Hindi,
+        # preventing the model from drifting to English before the language rule lands.
+        # For other Indian scripts it sets the correct character set.
+        # Skipped for Roman-script Hindi turns (Hinglish/English ambiguity intentional)
+        # and for English.
+        prefill_key = "hi" if _devanagari_turn else lang_code
+        if (_devanagari_turn or lang_code not in ("hi", "en", "")) and prefill_key in _LANG_PREFILL:
             messages.append({
                 "role":    "assistant",
-                "content": _LANG_PREFILL[lang_code]
+                "content": _LANG_PREFILL[prefill_key]
             })
 
         return messages

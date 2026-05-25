@@ -27,7 +27,7 @@ Mirror the caller's language immediately in every response. Switch instantly if 
 
 *Apply this step if: a complaint was raised during the feedback, rating is 1–7, or the caller explicitly asks for follow-up or escalation.*
 
-*If the rating was 8–10 and no complaint was mentioned, skip Step 7 and proceed directly to Step 8 — Email Collection.*
+*If the rating was 8–10 and no complaint was mentioned, skip Step 7 and hand off to closer immediately.*
 
 **Hindi:**
 > "क्या आप चाहेंगे कि हमारी टीम का कोई सदस्य इस विषय में आपसे सीधे संपर्क करे?"
@@ -75,6 +75,5 @@ Do NOT deliver the closing line here — that is the closer agent's responsibili
 - Do NOT begin the closing line in this step — leave that entirely to the closer.
 - Do NOT repeat the rating or summarize all feedback again in this step.
 - Do NOT make new commitments or promises in this step.
-- Do NOT ask for email. Email collection has been removed.
 - Mirror the caller's language at all times.
 - Do NOT use any gendered salutation (sir, madam). Address callers by name or without any salutation.
