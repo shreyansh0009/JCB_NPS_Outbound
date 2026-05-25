@@ -22,4 +22,4 @@
 
  7. Injest knowledge_base: 
  
-    python -m providers.rag.ingest --collection jcb_nps_outbound_kb --files knowledge_bases/jcb_nps_outbound_kb.md 
+python -m providers.rag.ingest --collection jcb_nps_outbound_kb --files knowledge_bases/jcb_nps_outbound_kb.md
