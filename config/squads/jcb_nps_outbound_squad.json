@@ -1,12 +1,12 @@
 {
   "name": "JCB — Mission Happiness Outbound NPS Survey Squad",
-  "description": "Outbound Mission Happiness feedback caller for JCB. Naina calls B2B customers to collect NPS feedback on their overall experience with JCB equipment — covering machine quality, order accuracy, delivery, and dealer communication. Supports Hindi and English with immediate language mirroring.",
+  "description": "Outbound Mission Happiness feedback caller for JCB. Priya calls B2B customers to collect NPS feedback on their overall experience with JCB equipment — covering machine quality, order accuracy, delivery, and dealer communication. Supports Hindi and English with immediate language mirroring.",
   "leader": "hello",
   "agents": [
     {
       "name": "hello",
       "class": "HelloAgent",
-      "description": "Naina introduces herself from JCB's Mission Happiness Team, confirms the customer's identity, checks availability, and routes to the screener.",
+      "description": "Priya introduces herself from JCB's Mission Happiness Team, confirms the customer's identity, checks availability, and routes to the screener.",
       "can_handoff_to": [
         "screener",
         "closer"
