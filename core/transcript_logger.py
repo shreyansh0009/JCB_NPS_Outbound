@@ -102,7 +102,7 @@ async def save_transcript(
 
         # ── Post-call integrations ───────────────────────────────────────
         from config.settings import Settings
-        from integrations.salesforce import create_case
+        from integrations.salesforce import create_nps_survey
         from integrations.email_notify import send_email
         from integrations.whatsapp_notify import send_whatsapp
 
@@ -112,9 +112,9 @@ async def save_transcript(
             for m in session.history
         )
 
-        # 1. Create Salesforce case
-        sf_result = await create_case(settings, session, transcript_text, duration)
-        case_number = sf_result.get("caseNumber", "") if sf_result else ""
+        # 1. Create Salesforce NPS survey record
+        sf_result = await create_nps_survey(settings, session, transcript_text, duration)
+        case_number = sf_result.get("surveyId", "") if sf_result else ""
 
         # 2. Send email + WhatsApp notifications (need case number from SF)
         await send_email(settings, session, case_number)
