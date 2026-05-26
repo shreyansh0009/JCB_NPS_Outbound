@@ -125,6 +125,7 @@ def _build_lead_context(lead: Lead, mobile: str, settings: Settings) -> dict:
         "welcome_message":  welcome,
         "did":              settings.sip_trunk,
         "direction":        "outbound",
+        "campaign_name":    lead.campaign_name,
     }
 
 

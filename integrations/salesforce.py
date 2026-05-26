@@ -11,6 +11,7 @@ Usage (called from transcript_logger):
 from __future__ import annotations
 
 import logging
+import math
 import re
 import time
 from typing import Optional
@@ -45,6 +46,17 @@ _Q_KEYWORDS: list[tuple[str, tuple[str, ...]]] = [
         "invoice", "warranty card", "documentation",
     )),
 ]
+
+
+def _format_duration(seconds: float) -> str:
+    total = int(math.ceil(seconds))
+    mins = total // 60
+    secs = total % 60
+    if mins and secs:
+        return f"{mins} min {secs} sec"
+    if mins:
+        return f"{mins} min"
+    return f"{secs} sec"
 
 
 def _extract_question_ratings(history: list[dict]) -> list[dict]:
@@ -153,6 +165,8 @@ async def create_nps_survey(
             "remark": remark,
             "recordingLink": session.get("recording_url", ""),
             "questionRatings": question_ratings,
+            "callDuration": _format_duration(duration_seconds),
+            "campaignName": session.get("campaign_name", ""),
         }
 
         endpoint = f"{settings.sf_instance_url}/services/apexrest/NPSSurveyAPI/"

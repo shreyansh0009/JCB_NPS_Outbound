@@ -59,6 +59,7 @@ class Lead:
     address: str = ""
     pincode: str = ""
     preferred_language: str = ""
+    campaign_name: str = ""
     extra: dict[str, Any] = field(default_factory=dict)
     # Runtime state
     status: str = "queued"        # queued | dialing | originated | failed | completed
@@ -326,6 +327,7 @@ class CampaignManager:
             while campaign.cursor < len(campaign.leads) and campaign.status == "running":
                 lead = campaign.leads[campaign.cursor]
                 seq = campaign.cursor
+                lead.campaign_name = campaign.name
                 lead.status = "dialing"
                 lead.started_at = time.time()
                 await self._db.aupdate_lead(
